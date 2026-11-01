@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chevy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: slim app bar with top-level tabs; tool panels (search & sort, columns) are tinted, compact and hidden until opened; the list is a plain white card. */
+:root {
+  --bg: #f4f5f8;
+  --surface: #ffffff;
+  --ink: #1b2130;
+  --muted: #5d6578;
+  --line: #dde1ea;
+  --accent: #2346b8;
+  --accent-soft: #e6ebfb;
+  --panel: #e9eef9;
+  --panel-line: #c7d2ef;
+  --panel-input: #f7f9fe;
+  --good: #1f8a4c;
+  --good-soft: #e3f4ea;
+  --warn: #a8660b;
+  --warn-soft: #fbf0dc;
+  --hold: #7a5aa6;
+  --hold-soft: #efe9f8;
+  --idle-soft: #eceef3;
+  --graph-bg: #fbfbfd;
+  --page: #0f8b8d;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11141c; --surface: #191d28; --ink: #e8eaf1; --muted: #9aa2b5; --line: #2b3142;
+    --accent: #8aa4ff; --accent-soft: #232c4a; --panel: #1b2235; --panel-line: #33406a; --panel-input: #141a2a;
+    --good: #5fcf8e; --good-soft: #1a3326;
+    --warn: #e6ad55; --warn-soft: #3a2d17; --hold: #b99ae6; --hold-soft: #2e2540; --idle-soft: #252a37; --graph-bg: #0e1118; --page: #4fd1c5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11141c; --surface: #191d28; --ink: #e8eaf1; --muted: #9aa2b5; --line: #2b3142;
+  --accent: #8aa4ff; --accent-soft: #232c4a; --panel: #1b2235; --panel-line: #33406a; --panel-input: #141a2a;
+  --good: #5fcf8e; --good-soft: #1a3326;
+  --warn: #e6ad55; --warn-soft: #3a2d17; --hold: #b99ae6; --hold-soft: #2e2540; --idle-soft: #252a37; --graph-bg: #0e1118; --page: #4fd1c5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.appbar { background: var(--surface); border-bottom: 1px solid var(--line); padding: 0 20px; display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; padding: 14px 0 12px; }
+.tabs { display: flex; gap: 4px; }
+.tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 14px 10px 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+main { max-width: 1120px; margin: 0 auto; padding: 24px 20px 60px; display: grid; gap: 14px; }
+.view-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--font-display); font-size: 28px; margin: 0; text-wrap: balance; }
+.count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+:root[data-theme="dark"] .btn.primary { color: #0f1424; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0f1424; } }
+.btn.danger { color: #c0392b; }
+.btn.ghost { border-color: transparent; background: none; color: var(--muted); }
+.head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 7px 12px; }
+.btn.toggle[aria-expanded="true"] { background: var(--panel); border-color: var(--panel-line); color: var(--accent); }
+.badge { background: var(--accent); color: var(--surface); border-radius: 999px; font-size: 11px; font-weight: 700; min-width: 18px; padding: 0 5px; text-align: center; line-height: 18px; }
+.badge[hidden] { display: none; }
+
+.notice { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+.notice[hidden] { display: none; }
+
+/* Tool panels: tinted, accent stripe, compact type — clearly not part of the list */
+.panel { background: var(--panel); border: 1px solid var(--panel-line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 12px 12px; display: grid; gap: 8px; font-size: 13px; }
+.panel[hidden] { display: none; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; }
+.panel-name { font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--accent); }
+.x { background: none; border: 0; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.x:hover { background: var(--panel-line); }
+.panel input, .panel select { background: var(--panel-input); border: 1px solid var(--panel-line); }
+.search { width: 100%; padding: 5px 9px; border-radius: 6px; font-size: 13px; }
+.ctl-block { display: grid; gap: 5px; }
+.ctl-block + .ctl-block { border-top: 1px dashed var(--panel-line); padding-top: 8px; }
+.ctl-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.ctl-title .btn { padding: 0 6px; font-size: 11px; text-transform: none; letter-spacing: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { border: 1px solid var(--panel-line); background: var(--panel-input); border-radius: 999px; padding: 2px 9px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.chip .dir { font-size: 11px; }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.f { display: grid; gap: 3px; align-content: start; }
+.f > label, .f > .flabel { font-size: 12px; font-weight: 600; }
+.f.active > label, .f.active > .flabel { color: var(--accent); }
+.panel .f input, .panel .f select { padding: 3px 6px; font-size: 12px; border-radius: 5px; width: 100%; min-width: 0; }
+.range { display: grid; grid-template-columns: auto 1fr; gap: 3px 6px; align-items: center; }
+.range span { font-size: 11px; color: var(--muted); }
+.f .chips .chip { font-size: 11px; padding: 1px 8px; }
+.f input:disabled { opacity: .45; }
+
+/* Columns panel */
+.col-list { display: grid; gap: 4px; max-width: 420px; }
+.col-item { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; background: var(--panel-input); border: 1px solid var(--panel-line); border-radius: 6px; padding: 4px 8px; }
+.col-item label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.col-item .w { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mv { display: flex; gap: 2px; }
+.mv button { border: 1px solid var(--panel-line); background: var(--surface); border-radius: 4px; width: 24px; height: 22px; cursor: pointer; font-size: 12px; padding: 0; }
+.mv button:disabled { opacity: .35; cursor: default; }
+.grip { color: var(--muted); font-size: 12px; }
+.hint { color: var(--muted); font-size: 12px; }
+
+/* Table (the list itself) */
+.table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 2px rgba(20,30,60,.04); }
+table { border-collapse: collapse; table-layout: fixed; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; }
+tbody tr:last-child td { border-bottom: 0; }
+th { position: relative; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; white-space: nowrap; user-select: none; }
+th[draggable="true"] { cursor: grab; }
+th.drop-before { box-shadow: inset 3px 0 0 var(--accent); }
+th.drop-after { box-shadow: inset -3px 0 0 var(--accent); }
+th.dragging { opacity: .4; }
+th button { background: none; border: 0; padding: 0; cursor: pointer; text-transform: inherit; letter-spacing: inherit; font-weight: inherit; color: inherit; }
+th button.on { color: var(--accent); }
+.resizer { position: absolute; top: 0; right: 0; width: 10px; height: 100%; cursor: col-resize; touch-action: none; }
+.resizer::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 4px; width: 2px; border-radius: 2px; background: var(--line); }
+.resizer:hover::after, .resizer.active::after { background: var(--accent); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); }
+tbody tr.row { cursor: pointer; }
+tbody tr.row:hover td { background: var(--bg); }
+.title-cell { font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.title-text { overflow: hidden; text-overflow: ellipsis; }
+.done .title-text { text-decoration: line-through; color: var(--muted); font-weight: 500; }
+.check { color: var(--good); font-weight: 700; }
+tr.group td { background: var(--bg); font-size: 13px; font-weight: 600; color: var(--muted); padding: 7px 14px; }
+.pill { border: 0; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 600; cursor: pointer; appearance: none; -webkit-appearance: none; max-width: 100%; }
+.s-notstarted { background: var(--idle-soft); color: var(--muted); }
+.s-planning { background: var(--accent-soft); color: var(--accent); }
+.s-active { background: var(--warn-soft); color: var(--warn); }
+.s-onhold { background: var(--hold-soft); color: var(--hold); }
+.s-done { background: var(--good-soft); color: var(--good); }
+.now-tag { font-size: 11px; font-weight: 700; color: var(--good); background: var(--good-soft); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+.empty { padding: 36px 20px; text-align: center; color: var(--muted); white-space: normal; }
+.empty strong { color: var(--ink); display: block; font-size: 17px; margin-bottom: 4px; }
+
+/* Link chips */
+.lchips { display: flex; flex-wrap: wrap; gap: 4px; }
+.lchip { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 1px 7px; font-size: 12px; cursor: pointer; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.lchip:hover { border-color: var(--accent); color: var(--accent); }
+td .lchips { flex-wrap: nowrap; overflow: hidden; }
+.link-edit { display: grid; gap: 6px; }
+.link-edit .lchip { display: inline-flex; align-items: center; gap: 4px; cursor: default; font-size: 13px; padding: 2px 4px 2px 8px; }
+.link-edit .lchip button { border: 0; background: none; cursor: pointer; color: var(--muted); font-size: 15px; line-height: 1; padding: 0 3px; }
+.link-edit .none { color: var(--muted); font-size: 13px; }
+
+/* Graph */
+#view-graph[hidden], #view-projects[hidden] { display: none; }
+.graph-wrap { position: relative; background: var(--graph-bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; height: min(72vh, 680px); min-height: 360px; touch-action: none; }
+#graph { display: block; width: 100%; height: 100%; cursor: grab; }
+#graph.hovering { cursor: pointer; }
+.graph-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
+.graph-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.graph-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.graph-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--muted); padding: 20px; pointer-events: none; }
+.graph-empty[hidden] { display: none; }
+.graph-empty strong { display: block; color: var(--ink); font-size: 16px; }
+.switch { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-right: 10px; }
+.ghint { color: var(--muted); font-size: 13px; }
+
+/* Dialog */
+.overlay { position: fixed; inset: 0; background: rgba(10, 14, 25, 0.45); display: grid; place-items: center; padding: 16px; z-index: 10; }
+.overlay[hidden] { display: none; }
+.dialog { background: var(--surface); border-radius: 14px; width: min(780px, 100%); padding: 22px 24px; display: grid; gap: 16px; align-content: start; box-shadow: 0 20px 50px rgba(0,0,0,0.25); max-height: 100%; overflow-y: auto; }
+.dialog h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
+.dialog .f > label, .dialog .f > .flabel { font-size: 13px; }
+.dialog .f input, .dialog .f select { padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); width: 100%; }
+.dialog .drange { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.dialog-actions { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.dialog-actions .right { display: flex; gap: 8px; margin-left: auto; }
+.err { color: #c0392b; font-size: 13px; }
+
+
+@media (max-width: 600px) {
+  .resizer { display: none; }
+  thead { display: none; }
+  table { width: 100% !important; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  colgroup { display: none; }
+  tbody tr.row { padding: 10px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+  tbody tr.row td { padding: 0; border: 0; }
+  tbody tr.row td[data-label]:not(:first-child)::before { content: attr(data-label) ": "; color: var(--muted); font-size: 13px; }
+}
+@media (prefers-reduced-motion: no-preference) { .btn, .chip, .tab { transition: border-color .15s, background .15s; } }
+
+.notice-wrap { max-width: 1120px; margin: 0 auto; padding: 14px 20px 0; }
+.notice-wrap:has(.notice[hidden]) { display: none; }
+#views main[hidden] { display: none; }
+.tdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; background: var(--muted); }
+.tdot.t-pages { border-radius: 2px; background: var(--page); }
+.tdot.t-projects { background: var(--accent); }
+.graph-legend i.sq { border-radius: 2px; }
+.ed-fields { display: grid; gap: 14px; }
+
+/* Entry page: properties, then notes */
+.dialog .drange input { min-width: 0; }
+.dialog .f { min-width: 0; }
+.dlg-top { display: flex; align-items: center; gap: 10px; }
+.dlg-top h2 { flex: 1; }
+.dlg-kind { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#backBtn { padding: 4px 10px; font-size: 13px; }
+.ed-fields { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px 16px; }
+.ed-fields .f:has(#ed-title), .ed-fields .f:has(.link-edit) { grid-column: 1 / -1; }
+.dialog #ed-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; padding: 8px 10px; }
+.link-edit .lchip .go { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; font-size: 13px; }
+.link-edit .lchip .go:hover { color: var(--accent); text-decoration: underline; }
+.body-sec { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.body-head { display: flex; justify-content: space-between; align-items: center; }
+.body-head .flabel { font-size: 13px; font-weight: 600; }
+.body-head .btn { padding: 3px 12px; font-size: 13px; }
+.md { min-height: 120px; padding: 4px 2px; line-height: 1.65; cursor: text; overflow-wrap: anywhere; }
+.md:empty::before, .md .placeholder { color: var(--muted); }
+.md > :first-child { margin-top: 0; }
+.md h1, .md h2, .md h3 { font-family: var(--font-display); line-height: 1.25; margin: 1.1em 0 .4em; text-wrap: balance; }
+.md h1 { font-size: 24px; } .md h2 { font-size: 20px; } .md h3 { font-size: 17px; }
+.md p { margin: 0 0 .8em; max-width: 68ch; }
+.md ul, .md ol { padding-left: 1.4em; margin: 0 0 .8em; }
+.md li { margin: .15em 0; }
+.md li input[type="checkbox"] { margin-right: 6px; }
+.md blockquote { margin: 0 0 .8em; padding: 2px 0 2px 12px; border-left: 3px solid var(--line); color: var(--muted); }
+.md code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: .92em; }
+.md pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+.md pre code { border: 0; padding: 0; background: none; }
+.md hr { border: 0; border-top: 1px solid var(--line); margin: 1.2em 0; }
+.md table { border-collapse: collapse; margin: 0 0 .8em; }
+.md th, .md td { border: 1px solid var(--line); padding: 4px 8px; }
+.md a { color: var(--accent); }
+.md a.wikilink { text-decoration: none; border-bottom: 1px solid currentColor; font-weight: 500; }
+.md a.wikilink.missing { color: var(--muted); border-bottom-style: dashed; }
+.body-edit { position: relative; }
+#bodyEdit { width: 100%; min-height: 260px; resize: vertical; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.suggest { position: absolute; left: 10px; right: 10px; bottom: calc(100% + 4px); max-width: 360px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.15); padding: 4px; display: grid; z-index: 5; }
+.suggest[hidden] { display: none; }
+.suggest button { text-align: left; border: 0; background: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.suggest button[aria-selected="true"], .suggest button:hover { background: var(--accent-soft); }
+.suggest .empty-s { padding: 6px 8px; font-size: 13px; color: var(--muted); }
+.md-hint { color: var(--muted); font-size: 12px; }
+.md-hint code { background: var(--bg); border-radius: 3px; padding: 0 3px; }
+@media (max-width: 600px) {
+  .overlay { padding: 0; }
+  .dialog { border-radius: 0; height: 100%; width: 100%; padding: 16px; }
+}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">Chevy</div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+</header>
+<div class="notice-wrap"><div class="notice" id="notice" hidden></div></div>
+<div id="views"></div>
+
+<main id="view-graph" hidden>
+  <div class="view-head">
+    <div>
+      <h1>Graph</h1>
+      <div class="count" id="graphCount"></div>
+    </div>
+    <div class="head-actions">
+      <button class="btn toggle" id="toggleGraphOpts" type="button" aria-expanded="false" aria-controls="graphPanel">Display</button>
+      <button class="btn" id="fitGraph" type="button">Fit to screen</button>
+    </div>
+  </div>
+  <section class="panel" id="graphPanel" aria-label="Graph display" hidden>
+    <div class="panel-head"><span class="panel-name">Display</span><button class="x" type="button" data-close="graphPanel" aria-label="Close display options">×</button></div>
+    <div>
+      <label class="switch"><input type="checkbox" id="gProjects" checked> Projects</label>
+      <label class="switch"><input type="checkbox" id="gPages" checked> Pages</label>
+      <label class="switch"><input type="checkbox" id="gOrphans" checked> Show unlinked items</label>
+      <label class="switch"><input type="checkbox" id="gDone" checked> Show done projects</label>
+      <label class="switch"><input type="checkbox" id="gLabels" checked> Always show names</label>
+    </div>
+  </section>
+  <div class="graph-legend" id="graphLegend"></div>
+  <div class="graph-wrap" id="graphWrap">
+    <canvas id="graph" aria-label="Graph of linked projects and pages"></canvas>
+    <div class="graph-empty" id="graphEmpty" hidden></div>
+  </div>
+  <div class="ghint">Drag the background to pan, pinch or scroll to zoom, drag a shape to move it, and tap one to open it. Circles are projects; squares are pages.</div>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <form class="dialog" id="editForm" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="dlg-top">
+      <button type="button" class="btn" id="backBtn" hidden>← Back</button>
+      <span class="dlg-kind" id="dlgTitle">New project</span>
+    </div>
+    <div class="ed-fields" id="edFields"></div>
+    <section class="body-sec" aria-label="Notes">
+      <div class="body-head"><span class="flabel">Notes</span><button type="button" class="btn" id="bodyToggle">Edit</button></div>
+      <div class="md" id="bodyView" tabindex="0"></div>
+      <div class="body-edit" id="bodyEditWrap" hidden>
+        <div class="suggest" id="suggest" role="listbox" hidden></div>
+        <textarea id="bodyEdit" aria-label="Notes in Markdown" placeholder="Write in Markdown. Type [[ to link to a project or page."></textarea>
+      </div>
+      <div class="md-hint">Markdown: <code># Heading</code> <code>**bold**</code> <code>- list</code> <code>- [ ] task</code> · Link with <code>[[Title]]</code></div>
+    </section>
+    <div class="err" id="eErr"></div>
+    <div class="dialog-actions">
+      <button class="btn danger" type="button" id="deleteBtn">Delete</button>
+      <div class="right">
+        <button class="btn" type="button" id="cancelBtn">Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const recall = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+
+  // ---------- Dates ----------
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const today = () => iso(new Date());
+  const nowLocal = () => { const d = new Date(); return iso(d) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()); };
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const fmt = (s, withYear = true) => {
+    if (!s) return "";
+    const [y, m, d] = s.slice(0, 10).split("-").map(Number);
+    return MONTHS[m - 1] + " " + d + (withYear ? ", " + y : "");
+  };
+  const fmtTime = (s) => {
+    if (!s || s.length < 16) return "";
+    let h = Number(s.slice(11, 13)); const mi = s.slice(14, 16), ap = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12; return h + ":" + mi + " " + ap;
+  };
+  const fmtRange = (a, b) => {
+    if (!a && !b) return "";
+    if (a && !b) return "From " + fmt(a);
+    if (!a && b) return "Until " + fmt(b);
+    return fmt(a, a.slice(0, 4) !== b.slice(0, 4)) + " – " + fmt(b);
+  };
+  const thisWeek = () => { const d = new Date(); const dow = (d.getDay() + 6) % 7; const s = new Date(d); s.setDate(d.getDate() - dow); const e = new Date(s); e.setDate(s.getDate() + 6); return [iso(s), iso(e)]; };
+  const thisMonth = () => { const d = new Date(); return [iso(new Date(d.getFullYear(), d.getMonth(), 1)), iso(new Date(d.getFullYear(), d.getMonth() + 1, 0))]; };
+  const thisYear = () => { const y = new Date().getFullYear(); return [y + "-01-01", y + "-12-31"]; };
+  const PAST_PRESETS = [
+    { key: "7", label: "Last 7 days", range: () => [addDays(-6), today()] },
+    { key: "30", label: "Last 30 days", range: () => [addDays(-29), today()] },
+    { key: "month", label: "This month", range: thisMonth },
+    { key: "year", label: "This year", range: thisYear },
+  ];
+  const FOCUS_PRESETS = [
+    { key: "today", label: "Today", range: () => [today(), today()] },
+    { key: "week", label: "This week", range: thisWeek },
+    { key: "month", label: "This month", range: thisMonth },
+    { key: "next30", label: "Next 30 days", range: () => [today(), addDays(29)] },
+  ];
+  const presetOn = (p, from, to) => { const [a, b] = p.range(); return from === a && to === b; };
+
+  // ---------- Statuses ----------
+  const STATUSES = [
+    { v: "Not started", cls: "s-notstarted", color: "--muted" },
+    { v: "Planning", cls: "s-planning", color: "--accent" },
+    { v: "Active", cls: "s-active", color: "--warn" },
+    { v: "On hold", cls: "s-onhold", color: "--hold" },
+    { v: "Done", cls: "s-done", color: "--good" },
+  ];
+  const statusIndex = (s) => { const i = STATUSES.findIndex(x => x.v === s); return i < 0 ? 99 : i; };
+  const statusOf = (s) => STATUSES.find(x => x.v === s) || STATUSES[0];
+  const focusState = (e, P) => {
+    const t = today(), s = e[P.start], en = e[P.end];
+    if (!s && !en) return "none";
+    if ((s || "0000") <= t && t <= (en || "9999")) return "now";
+    if (s && s > t) return "upcoming";
+    return "past";
+  };
+  const FOCUS_LABEL = { now: "In focus today", upcoming: "Upcoming", past: "Past", none: "No focus dates" };
+
+  // ---------- Page types ----------
+  // Each type lists its properties once; Sort by, Filter and Columns all follow this order.
+  const TYPES = [
+    {
+      key: "projects", label: "Projects", singular: "project", idPrefix: "p", settingsDoc: "settings/projectsView",
+      defaultSort: { key: "created", dir: "desc" },
+      props: [
+        { key: "title", kind: "title", label: "Title", field: "title", width: 340 },
+        { key: "created", kind: "date", label: "Created date", field: "created", width: 150 },
+        { key: "status", kind: "status", label: "Status", field: "status", width: 150 },
+        { key: "focus", kind: "daterange", label: "Focus dates", start: "focusStart", end: "focusEnd", width: 250 },
+        { key: "links", kind: "links", label: "Links", width: 240 },
+      ],
+      groups: [
+        { key: "none", label: "None" },
+        { key: "status", label: "Status", fn: e => e.status || "Not started", order: STATUSES.map(s => s.v) },
+        { key: "createdMonth", label: "Created month", fn: e => monthKey(e.created), sort: "monthDesc" },
+        { key: "focusState", label: "Focus timing", fn: e => FOCUS_LABEL[focusState(e, { start: "focusStart", end: "focusEnd" })], order: Object.values(FOCUS_LABEL) },
+      ],
+    },
+    {
+      key: "pages", label: "Pages", singular: "page", idPrefix: "g", settingsDoc: "settings/pagesView",
+      defaultSort: { key: "createdTime", dir: "desc" },
+      props: [
+        { key: "title", kind: "title", label: "Title", field: "title", width: 360 },
+        { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
+        { key: "links", kind: "links", label: "Links", width: 300 },
+      ],
+      groups: [
+        { key: "none", label: "None" },
+        { key: "createdMonth", label: "Created month", fn: e => monthKey(e.createdTime), sort: "monthDesc" },
+      ],
+    },
+  ];
+  const TYPE = Object.fromEntries(TYPES.map(T => [T.key, T]));
+  const monthKey = (d) => d ? MONTHS[Number(d.slice(5, 7)) - 1] + " " + d.slice(0, 4) : "No date";
+  const hasStatus = (T) => T.props.some(p => p.kind === "status");
+
+  // ---------- Data ----------
+  const data = { projects: [], pages: [] };
+  const loaded = { projects: false, pages: false };
+  const cols = {}, settingsRefs = {};
+  let db = null, local = false;
+  let byId = new Map(), adj = new Map();
+  const titleSort = (a, b) => (a.e.title || "").localeCompare(b.e.title || "");
+  function buildAdj() {
+    byId = new Map(); adj = new Map();
+    TYPES.forEach(T => data[T.key].forEach(e => { byId.set(e.id, { type: T.key, e }); adj.set(e.id, new Set()); }));
+    byId.forEach(({ e }) => (Array.isArray(e.links) ? e.links : []).forEach(id => {
+      if (id !== e.id && byId.has(id)) { adj.get(e.id).add(id); adj.get(id).add(e.id); }
+    }));
+  }
+  const linksOf = (id) => [...(adj.get(id) || [])].map(x => byId.get(x)).filter(Boolean).sort(titleSort);
+  const newId = (T) => T.idPrefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const notice = (msg) => { const n = $("notice"); n.hidden = !msg; if (msg) n.textContent = msg; };
+  const loadTimer = setTimeout(() => { if (!loaded.projects) notice("Your pages can't be reached yet. Check your connection; this page keeps trying."); }, 10000);
+
+  async function saveEntry(type, e) {
+    const { id, ...body } = e;
+    if (local || !db) {
+      const list = data[type], i = list.findIndex(x => x.id === id);
+      if (i >= 0) list[i] = e; else list.push(e);
+      persist(); renderAll(); return;
+    }
+    const ref = db.collection(type).doc(id);
+    try { await ref.set(body); }
+    catch (err) {
+      if (err.code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 600)); await ref.set(body); }
+      else if (err.code === "invalid_argument") throw new Error("You don't have permission to edit these pages.");
+      else if (err.code === "quota_exceeded") throw new Error("Storage is full. Delete some entries, then try again.");
+      else throw new Error("Couldn't save (" + (err.code || "error") + "). Try again.");
+    }
+  }
+  async function deleteEntry(type, id) {
+    if (local || !db) { data[type] = data[type].filter(x => x.id !== id); persist(); renderAll(); return; }
+    await db.collection(type).doc(id).delete();
+  }
+
+  // ---------- Property kinds ----------
+  const K = {
+    title: {
+      empty: () => ({ q: "" }),
+      active: f => !!f.q.trim(),
+      test: (e, P, f) => !f.q.trim() || (e.title || "").toLowerCase().includes(f.q.trim().toLowerCase()),
+      sortVal: e => (e.title || "").toLowerCase(),
+      search: e => (e.title || "") + " " + (e.body || ""),
+      filterHtml: (P, id) => `<label for="${id}">${P.label}</label><input id="${id}" type="text" placeholder="Contains…" data-part="q">`,
+      sync: (box, f) => { const i = box.querySelector('[data-part="q"]'); if (document.activeElement !== i) i.value = f.q; },
+      cell: (e, P, T) => {
+        const done = hasStatus(T) && e.status === "Done";
+        return `<span class="title-cell">${done ? '<span class="check" aria-label="Done">✓</span>' : ""}<span class="title-text">${esc(e.title || "Untitled")}</span></span>`;
+      },
+      editHtml: (P, e) => `<label for="ed-${P.key}">${P.label}</label><input id="ed-${P.key}" type="text" autocomplete="off" value="${esc(e?.title || "")}">`,
+      read: (P, out) => { out.title = $("ed-" + P.key).value.trim(); if (!out.title) return "Give it a title."; },
+    },
+    date: {
+      empty: () => ({ from: "", to: "" }),
+      active: f => !!(f.from || f.to),
+      test: (e, P, f) => { const d = (e[P.field] || "").slice(0, 10); if (f.from && (!d || d < f.from)) return false; if (f.to && (!d || d > f.to)) return false; return true; },
+      sortVal: (e, P) => e[P.field] || "",
+      search: (e, P) => fmt(e[P.field]),
+      filterHtml: (P, id) => `<span class="flabel">${P.label}</span><div class="range"><span>From</span><input type="date" data-part="from" aria-label="${P.label} from"><span>To</span><input type="date" data-part="to" aria-label="${P.label} to"></div><div class="chips" data-dyn></div>`,
+      sync: (box, f) => {
+        box.querySelector('[data-part="from"]').value = f.from; box.querySelector('[data-part="to"]').value = f.to;
+        box.querySelector("[data-dyn]").innerHTML = PAST_PRESETS.map(p => `<button type="button" class="chip" aria-pressed="${presetOn(p, f.from, f.to)}" data-act="preset" data-val="${p.key}">${p.label}</button>`).join("");
+      },
+      preset: (f, key) => { const p = PAST_PRESETS.find(x => x.key === key); if (presetOn(p, f.from, f.to)) { f.from = ""; f.to = ""; } else [f.from, f.to] = p.range(); },
+      cell: (e, P) => { const v = e[P.field]; return `<span class="num">${v ? esc(fmt(v) + (P.withTime && fmtTime(v) ? ", " + fmtTime(v) : "")) : "—"}</span>`; },
+      editHtml: (P, e) => `<label for="ed-${P.key}">${P.label}</label><input id="ed-${P.key}" type="${P.withTime ? "datetime-local" : "date"}" value="${esc(e?.[P.field] || (P.withTime ? nowLocal() : today()))}">`,
+      read: (P, out) => { out[P.field] = $("ed-" + P.key).value || (P.withTime ? nowLocal() : today()); },
+    },
+    status: {
+      empty: () => ({ values: [] }),
+      active: f => f.values.length > 0,
+      test: (e, P, f) => !f.values.length || f.values.includes(e.status || "Not started"),
+      sortVal: e => statusIndex(e.status || "Not started"),
+      search: e => e.status || "",
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
+      sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = STATUSES.map(s => `<button type="button" class="chip" aria-pressed="${f.values.includes(s.v)}" data-act="status" data-val="${esc(s.v)}">${s.v === "Done" ? "✓ " : ""}${s.v}</button>`).join(""); },
+      cell: (e, P, T) => `<select class="pill ${statusOf(e.status).cls}" data-status-for="${esc(e.id)}" aria-label="Status for ${esc(e.title)}">${STATUSES.map(s => `<option${s.v === (e.status || "Not started") ? " selected" : ""}>${s.v}</option>`).join("")}</select>`,
+      editHtml: (P, e) => `<label for="ed-${P.key}">${P.label}</label><select id="ed-${P.key}">${STATUSES.map(s => `<option${s.v === (e?.status || "Not started") ? " selected" : ""}>${s.v}</option>`).join("")}</select>`,
+      read: (P, out) => { out.status = $("ed-" + P.key).value; },
+    },
+    daterange: {
+      empty: () => ({ from: "", to: "", none: false }),
+      active: f => f.none || !!(f.from || f.to),
+      test: (e, P, f) => {
+        const s0 = e[P.start], e0 = e[P.end];
+        if (f.none) return !s0 && !e0;
+        if (!f.from && !f.to) return true;
+        if (!s0 && !e0) return false;
+        const s = s0 || "0000-00-00", en = e0 || "9999-12-31";
+        return !(f.to && s > f.to) && !(f.from && en < f.from);
+      },
+      sortVal: (e, P) => e[P.start] || e[P.end] || "",
+      search: (e, P) => fmtRange(e[P.start], e[P.end]),
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="range"><span>From</span><input type="date" data-part="from" aria-label="${P.label} from"><span>To</span><input type="date" data-part="to" aria-label="${P.label} to"></div><div class="chips" data-dyn></div>`,
+      sync: (box, f, P) => {
+        const a = box.querySelector('[data-part="from"]'), b = box.querySelector('[data-part="to"]');
+        a.value = f.from; b.value = f.to; a.disabled = b.disabled = f.none;
+        box.querySelector("[data-dyn]").innerHTML = FOCUS_PRESETS.map(p => `<button type="button" class="chip" aria-pressed="${!f.none && presetOn(p, f.from, f.to)}" data-act="preset" data-val="${p.key}">${p.label}</button>`).join("")
+          + `<button type="button" class="chip" aria-pressed="${f.none}" data-act="none">No ${P.label.toLowerCase()}</button>`;
+      },
+      preset: (f, key) => { const p = FOCUS_PRESETS.find(x => x.key === key); f.none = false; if (presetOn(p, f.from, f.to)) { f.from = ""; f.to = ""; } else [f.from, f.to] = p.range(); },
+      cell: (e, P, T) => {
+        const r = fmtRange(e[P.start], e[P.end]);
+        const now = focusState(e, P) === "now" && e.status !== "Done";
+        return `<span class="num">${esc(r) || "—"}</span>${now ? '<span class="now-tag">NOW</span>' : ""}`;
+      },
+      editHtml: (P, e) => `<span class="flabel">${P.label}</span><div class="drange"><input id="ed-${P.key}-s" type="date" aria-label="${P.label} start" value="${esc(e?.[P.start] || "")}"><input id="ed-${P.key}-e" type="date" aria-label="${P.label} end" value="${esc(e?.[P.end] || "")}"></div>`,
+      read: (P, out) => {
+        const s = $("ed-" + P.key + "-s").value, en = $("ed-" + P.key + "-e").value;
+        if (s && en && en < s) return "The " + P.label.toLowerCase() + " end date is before the start date.";
+        out[P.start] = s; out[P.end] = en;
+      },
+    },
+    links: {
+      empty: () => ({ to: "", mode: "any" }),
+      active: f => !!f.to || f.mode !== "any",
+      test: (e, P, f) => {
+        const n = adj.get(e.id) || new Set();
+        if (f.mode === "has" && !n.size) return false;
+        if (f.mode === "none" && n.size) return false;
+        if (f.to && !n.has(f.to)) return false;
+        return true;
+      },
+      sortVal: e => (adj.get(e.id) || new Set()).size || "",
+      search: e => linksOf(e.id).map(x => x.e.title).join(" "),
+      filterHtml: (P, id) => `<label for="${id}">${P.label}</label><select id="${id}" data-part="to"></select><div class="chips" data-dyn></div>`,
+      sync: (box, f) => {
+        const sel = box.querySelector('[data-part="to"]');
+        sel.innerHTML = `<option value="">Linked to anything</option>` + TYPES.map(T => {
+          const items = data[T.key].map(e => ({ e })).sort(titleSort);
+          return items.length ? `<optgroup label="${T.label}">${items.map(({ e }) => `<option value="${esc(e.id)}"${e.id === f.to ? " selected" : ""}>Linked to: ${esc(e.title || "Untitled")}</option>`).join("")}</optgroup>` : "";
+        }).join("");
+        box.querySelector("[data-dyn]").innerHTML = [["has", "Has links"], ["none", "No links"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${f.mode === k}" data-act="lmode" data-val="${k}">${l}</button>`).join("");
+      },
+      cell: (e) => {
+        const ls = linksOf(e.id);
+        return ls.length ? `<span class="lchips">${ls.map(x => `<button type="button" class="lchip" data-open="${esc(x.e.id)}"><i class="tdot t-${x.type}" aria-hidden="true"></i>${esc(x.e.title || "Untitled")}</button>`).join("")}</span>` : '<span style="color:var(--muted)">—</span>';
+      },
+      editHtml: (P) => `<div class="link-edit"><label for="ed-addlink">${P.label}</label><div class="lchips" id="ed-links"></div><select id="ed-addlink"></select></div>`,
+      read: (P, out) => { out.links = [...draft.links]; },
+    },
+  };
+
+  // ---------- Views ----------
+  const views = {};
+  function makeView(T) {
+    const main = document.createElement("main");
+    main.id = "view-" + T.key; main.hidden = true;
+    main.innerHTML = `
+      <div class="view-head">
+        <div><h1>${T.label}</h1><div class="count" data-r="count">Loading…</div></div>
+        <div class="head-actions">
+          <button class="btn toggle" type="button" data-r="tCtl" aria-expanded="false">Search &amp; sort<span class="badge" data-r="badge" hidden></span></button>
+          <button class="btn toggle" type="button" data-r="tCols" aria-expanded="false">Columns</button>
+          <button class="btn primary" type="button" data-r="add">+ New ${T.singular}</button>
+        </div>
+      </div>
+      <section class="panel" data-r="ctl" aria-label="Search, sort and filter ${T.label}" hidden>
+        <div class="panel-head"><span class="panel-name">Search &amp; sort</span><button class="x" type="button" data-r="ctlX" aria-label="Close search and sort">×</button></div>
+        <input class="search" data-r="q" type="search" placeholder="Search ${T.label.toLowerCase()}…" aria-label="Search ${T.label.toLowerCase()}">
+        <div class="ctl-block"><div class="ctl-title">Sort by</div><div class="chips" data-r="sort"></div></div>
+        <div class="ctl-block"><div class="ctl-title">Filter <button class="btn ghost" type="button" data-r="clear">Clear filters</button></div>
+          <div class="filters" data-r="filters">${T.props.map(P => `<div class="f" data-f="${P.key}">${K[P.kind].filterHtml(P, `f-${T.key}-${P.key}`)}</div>`).join("")}</div>
+        </div>
+        <div class="ctl-block"><div class="ctl-title">Group by</div><div class="chips" data-r="group"></div></div>
+      </section>
+      <section class="panel" data-r="colsPanel" aria-label="${T.label} columns" hidden>
+        <div class="panel-head"><span class="panel-name">Columns</span><button class="x" type="button" data-r="colsX" aria-label="Close columns">×</button></div>
+        <div class="hint">Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.</div>
+        <div class="col-list" data-r="colList"></div>
+        <div><button class="btn ghost" type="button" data-r="resetCols" style="padding:2px 6px;font-size:12px">Reset columns</button></div>
+      </section>
+      <div class="table-wrap"><table data-r="table"><colgroup data-r="colgroup"></colgroup><thead><tr data-r="head"></tr></thead><tbody data-r="rows"></tbody></table></div>`;
+    $("views").appendChild(main);
+    const R = (k) => main.querySelector(`[data-r="${k}"]`);
+    const PROP = Object.fromEntries(T.props.map(P => [P.key, P]));
+
+    // UI state, remembered in this browser
+    const freshFilters = () => Object.fromEntries(T.props.map(P => [P.key, K[P.kind].empty()]));
+    let ui = { q: "", sortKey: T.defaultSort.key, sortDir: T.defaultSort.dir, f: freshFilters(), group: "none" };
+    const saved = recall(`chevy.${T.key}.view`);
+    if (saved) {
+      if (PROP[saved.sortKey]) { ui.sortKey = saved.sortKey; ui.sortDir = saved.sortDir === "asc" ? "asc" : "desc"; }
+      if (T.groups.some(g => g.key === saved.group)) ui.group = saved.group;
+      if (saved.f) T.props.forEach(P => { if (saved.f[P.key]) ui.f[P.key] = { ...K[P.kind].empty(), ...saved.f[P.key] }; });
+    }
+    const saveUi = () => store(`chevy.${T.key}.view`, { ...ui, q: "" });
+
+    // Columns
+    const defaults = T.props.map(P => ({ key: P.key, visible: true, width: P.width }));
+    const normalize = (list) => {
+      const out = [];
+      (Array.isArray(list) ? list : []).forEach(c => { if (c && PROP[c.key] && !out.some(o => o.key === c.key)) out.push({ key: c.key, visible: c.visible !== false, width: Math.max(90, Number(c.width) || PROP[c.key].width) }); });
+      defaults.forEach(d => { if (!out.some(o => o.key === d.key)) out.push({ ...d }); });
+      if (!out.some(c => c.visible)) out[0].visible = true;
+      return out;
+    };
+    cols[T.key] = normalize(recall(`chevy.${T.key}.cols`) || defaults);
+    let colSave = Promise.resolve();
+    const saveCols = () => {
+      store(`chevy.${T.key}.cols`, cols[T.key]);
+      const ref = settingsRefs[T.key]; if (!ref) return;
+      const body = { columns: cols[T.key].map(c => ({ ...c })) };
+      colSave = colSave.then(() => ref.set(body)).catch(() => {});
+    };
+    const shown = () => cols[T.key].filter(c => c.visible);
+
+    // Panels
+    function panel(btn, pnl, x, key, focusEl) {
+      let open = recall(key) === true;
+      const apply = () => { R(pnl).hidden = !open; R(btn).setAttribute("aria-expanded", String(open)); };
+      const set = (v) => { open = v; apply(); store(key, open); if (open && focusEl) R(focusEl).focus(); };
+      R(btn).addEventListener("click", () => set(!open)); R(x).addEventListener("click", () => set(false)); apply();
+    }
+    panel("tCtl", "ctl", "ctlX", `chevy.${T.key}.ctlOpen`, "q");
+    panel("tCols", "colsPanel", "colsX", `chevy.${T.key}.colOpen`, null);
+    R("add").addEventListener("click", () => openEditor(T.key, null));
+
+    // Search, sort, filter, group events
+    R("q").addEventListener("input", e => { ui.q = e.target.value; renderRows(); renderBadge(); });
+    const setSort = (key) => {
+      if (ui.sortKey === key) ui.sortDir = ui.sortDir === "asc" ? "desc" : "asc";
+      else { ui.sortKey = key; ui.sortDir = PROP[key].kind === "date" ? "desc" : "asc"; }
+      saveUi(); render();
+    };
+    R("sort").addEventListener("click", e => { const b = e.target.closest("[data-sort]"); if (b) setSort(b.dataset.sort); });
+    R("head").addEventListener("click", e => { const b = e.target.closest("[data-sort]"); if (b) setSort(b.dataset.sort); });
+    R("group").addEventListener("click", e => { const b = e.target.closest("[data-group]"); if (b) { ui.group = b.dataset.group; saveUi(); render(); } });
+    R("clear").addEventListener("click", () => { ui.f = freshFilters(); saveUi(); render(); });
+    const onFilterInput = (e) => {
+      const box = e.target.closest("[data-f]"), part = e.target.dataset.part; if (!box || !part) return;
+      ui.f[box.dataset.f][part] = e.target.value; saveUi();
+      if (e.type === "change") render(); else { renderRows(); renderBadge(); syncActive(); }
+    };
+    R("filters").addEventListener("input", e => { if (e.target.type === "text") onFilterInput(e); });
+    R("filters").addEventListener("change", e => { if (e.target.type !== "text") onFilterInput(e); });
+    R("filters").addEventListener("click", e => {
+      const b = e.target.closest("[data-act]"); if (!b) return;
+      const key = b.closest("[data-f]").dataset.f, f = ui.f[key], P = PROP[key], v = b.dataset.val;
+      if (b.dataset.act === "preset") K[P.kind].preset(f, v);
+      else if (b.dataset.act === "none") f.none = !f.none;
+      else if (b.dataset.act === "status") f.values = f.values.includes(v) ? f.values.filter(x => x !== v) : [...f.values, v];
+      else if (b.dataset.act === "lmode") f.mode = f.mode === v ? "any" : v;
+      saveUi(); render();
+    });
+
+    function syncActive() { main.querySelectorAll("[data-f]").forEach(box => box.classList.toggle("active", K[PROP[box.dataset.f].kind].active(ui.f[box.dataset.f]))); }
+    function renderControls() {
+      if (document.activeElement !== R("q")) R("q").value = ui.q;
+      R("sort").innerHTML = T.props.map(P => {
+        const on = ui.sortKey === P.key;
+        return `<button type="button" class="chip" aria-pressed="${on}" data-sort="${P.key}">${P.label}${on ? ` <span class="dir" aria-label="${ui.sortDir === "asc" ? "ascending" : "descending"}">${ui.sortDir === "asc" ? "↑" : "↓"}</span>` : ""}</button>`;
+      }).join("");
+      main.querySelectorAll("[data-f]").forEach(box => K[PROP[box.dataset.f].kind].sync(box, ui.f[box.dataset.f], PROP[box.dataset.f]));
+      syncActive();
+      R("group").innerHTML = T.groups.map(g => `<button type="button" class="chip" aria-pressed="${ui.group === g.key}" data-group="${g.key}">${g.label}</button>`).join("");
+    }
+    function activeCount() { return (ui.q.trim() ? 1 : 0) + T.props.filter(P => K[P.kind].active(ui.f[P.key])).length + (ui.group !== "none" ? 1 : 0); }
+    function renderBadge() { const n = activeCount(), b = R("badge"); b.hidden = !n; b.textContent = n; b.setAttribute("aria-label", n + " active"); }
+
+    // Columns panel
+    function renderColPanel() {
+      const list = cols[T.key], vis = list.filter(c => c.visible).length;
+      R("colList").innerHTML = list.map((c, i) => `<div class="col-item">
+        <span class="grip" aria-hidden="true">${i + 1}</span>
+        <label><input type="checkbox" data-vis="${c.key}" ${c.visible ? "checked" : ""} ${c.visible && vis === 1 ? "disabled" : ""}> ${PROP[c.key].label}</label>
+        <span class="w">${c.width}px</span>
+        <span class="mv"><button type="button" data-up="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move ${PROP[c.key].label} left">↑</button><button type="button" data-down="${i}" ${i === list.length - 1 ? "disabled" : ""} aria-label="Move ${PROP[c.key].label} right">↓</button></span>
+      </div>`).join("");
+    }
+    R("colList").addEventListener("change", e => {
+      const k = e.target.dataset.vis; if (!k) return;
+      const c = cols[T.key].find(x => x.key === k); c.visible = e.target.checked;
+      if (!cols[T.key].some(x => x.visible)) c.visible = true;
+      saveCols(); render();
+    });
+    R("colList").addEventListener("click", e => {
+      const up = e.target.closest("[data-up]"), down = e.target.closest("[data-down]");
+      const i = up ? +up.dataset.up : down ? +down.dataset.down : -1; if (i < 0) return;
+      const j = up ? i - 1 : i + 1, list = cols[T.key]; if (j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]]; saveCols(); render();
+    });
+    R("resetCols").addEventListener("click", () => { cols[T.key] = normalize(defaults); saveCols(); render(); });
+
+    // Table header, resize, reorder
+    function renderHead() {
+      const vis = shown();
+      R("colgroup").innerHTML = vis.map(c => `<col data-col="${c.key}" style="width:${c.width}px">`).join("");
+      R("table").style.width = vis.reduce((s, c) => s + c.width, 0) + "px";
+      R("head").innerHTML = vis.map(c => {
+        const on = ui.sortKey === c.key;
+        return `<th scope="col" draggable="true" data-col="${c.key}"><button type="button" class="${on ? "on" : ""}" data-sort="${c.key}">${PROP[c.key].label}${on ? (ui.sortDir === "asc" ? " ↑" : " ↓") : ""}</button><span class="resizer" data-resize="${c.key}" title="Drag to resize"></span></th>`;
+      }).join("");
+    }
+    let resizing = null, dragKey = null;
+    R("head").addEventListener("pointerdown", e => {
+      const h = e.target.closest("[data-resize]"); if (!h) return;
+      e.preventDefault(); e.stopPropagation();
+      const c = cols[T.key].find(x => x.key === h.dataset.resize);
+      resizing = { c, startX: e.clientX, startW: c.width, h }; h.classList.add("active"); h.setPointerCapture(e.pointerId);
+    });
+    R("head").addEventListener("pointermove", e => {
+      if (!resizing) return;
+      resizing.c.width = Math.max(90, Math.round(resizing.startW + e.clientX - resizing.startX));
+      const el = R("colgroup").querySelector(`[data-col="${resizing.c.key}"]`); if (el) el.style.width = resizing.c.width + "px";
+      R("table").style.width = shown().reduce((s, c) => s + c.width, 0) + "px";
+    });
+    const endResize = () => { if (!resizing) return; resizing.h.classList.remove("active"); const ch = resizing.c.width !== resizing.startW; resizing = null; if (ch) { saveCols(); renderColPanel(); } };
+    R("head").addEventListener("pointerup", endResize);
+    R("head").addEventListener("pointercancel", endResize);
+    const clearMarks = () => main.querySelectorAll("th.drop-before, th.drop-after").forEach(t => t.classList.remove("drop-before", "drop-after"));
+    R("head").addEventListener("dragstart", e => {
+      const th = e.target.closest("th[data-col]"); if (!th || resizing) { e.preventDefault(); return; }
+      dragKey = th.dataset.col; th.classList.add("dragging");
+      try { e.dataTransfer.setData("text/plain", dragKey); e.dataTransfer.effectAllowed = "move"; } catch (err) {}
+    });
+    R("head").addEventListener("dragover", e => {
+      const th = e.target.closest("th[data-col]"); if (!th || !dragKey) return;
+      e.preventDefault(); clearMarks(); if (th.dataset.col === dragKey) return;
+      const r = th.getBoundingClientRect(); th.classList.add(e.clientX < r.left + r.width / 2 ? "drop-before" : "drop-after");
+    });
+    R("head").addEventListener("drop", e => {
+      const th = e.target.closest("th[data-col]"); if (!th || !dragKey) return;
+      e.preventDefault();
+      if (th.dataset.col !== dragKey) {
+        const r = th.getBoundingClientRect(), after = e.clientX >= r.left + r.width / 2;
+        const moving = cols[T.key].find(c => c.key === dragKey);
+        cols[T.key] = cols[T.key].filter(c => c.key !== dragKey);
+        const ti = cols[T.key].findIndex(c => c.key === th.dataset.col);
+        cols[T.key].splice(after ? ti + 1 : ti, 0, moving); saveCols();
+      }
+      dragKey = null; clearMarks(); render();
+    });
+    R("head").addEventListener("dragend", () => { dragKey = null; clearMarks(); main.querySelectorAll("th.dragging").forEach(t => t.classList.remove("dragging")); });
+
+    // Rows
+    function visible() {
+      const q = ui.q.trim().toLowerCase();
+      const list = data[T.key].filter(e => {
+        if (q && !T.props.map(P => K[P.kind].search(e, P)).join(" ").toLowerCase().includes(q)) return false;
+        return T.props.every(P => K[P.kind].test(e, P, ui.f[P.key]));
+      });
+      const P = PROP[ui.sortKey], dir = ui.sortDir === "asc" ? 1 : -1;
+      list.sort((a, b) => {
+        const va = K[P.kind].sortVal(a, P), vb = K[P.kind].sortVal(b, P);
+        if (va === "" && vb !== "") return 1;
+        if (vb === "" && va !== "") return -1;
+        if (va < vb) return -dir; if (va > vb) return dir;
+        return (a.title || "").localeCompare(b.title || "");
+      });
+      return list;
+    }
+    const rowHtml = (e) => `<tr class="row${hasStatus(T) && e.status === "Done" ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0">${shown().map(c => { const P = PROP[c.key]; return `<td data-label="${esc(P.label)}">${K[P.kind].cell(e, P, T)}</td>`; }).join("")}</tr>`;
+    function renderRows() {
+      const list = visible(), total = data[T.key].length, span = shown().length, noun = (n) => n === 1 ? T.singular : T.label.toLowerCase();
+      R("count").textContent = !loaded[T.key] && !total ? "Loading…" : (list.length === total ? `${total} ${noun(total)}` : `Showing ${list.length} of ${total} ${noun(total)}`);
+      const tb = R("rows");
+      if (!total) { tb.innerHTML = loaded[T.key] ? `<tr><td colspan="${span}" class="empty"><strong>No ${T.label.toLowerCase()} yet</strong>Add your first one with “+ New ${T.singular}”.</td></tr>` : ""; return; }
+      if (!list.length) { tb.innerHTML = `<tr><td colspan="${span}" class="empty"><strong>Nothing matches</strong>Try clearing the search or filters.</td></tr>`; return; }
+      const g = T.groups.find(x => x.key === ui.group);
+      if (!g || !g.fn) { tb.innerHTML = list.map(rowHtml).join(""); return; }
+      const groups = new Map();
+      list.forEach(e => { const k = g.fn(e); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(e); });
+      let keys = [...groups.keys()];
+      if (g.order) keys.sort((a, b) => g.order.indexOf(a) - g.order.indexOf(b));
+      else if (g.sort === "monthDesc") {
+        const mk = (k) => { const e = groups.get(k)[0]; const v = e.created || e.createdTime || ""; return k === "No date" ? "" : v.slice(0, 7); };
+        keys.sort((a, b) => { const A = mk(a), B = mk(b); if (!A) return 1; if (!B) return -1; return B.localeCompare(A); });
+      }
+      tb.innerHTML = keys.map(k => `<tr class="group"><td colspan="${span}">${esc(k)} · ${groups.get(k).length}</td></tr>` + groups.get(k).map(rowHtml).join("")).join("");
+    }
+    R("rows").addEventListener("click", e => {
+      if (e.target.closest("select")) return;
+      const lk = e.target.closest("[data-open]"); if (lk) { const t = byId.get(lk.dataset.open); if (t) openEditor(t.type, t.e.id); return; }
+      const tr = e.target.closest("tr.row"); if (tr) openEditor(T.key, tr.dataset.id);
+    });
+    R("rows").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("tr.row")) openEditor(T.key, e.target.dataset.id); });
+    R("rows").addEventListener("change", async e => {
+      const sel = e.target.closest("[data-status-for]"); if (!sel) return;
+      const it = data[T.key].find(x => x.id === sel.dataset.statusFor); if (!it) return;
+      try { await saveEntry(T.key, { ...it, status: sel.value, updatedAt: new Date().toISOString() }); }
+      catch (err) { notice(err.message); renderAll(); }
+    });
+
+    function render() { renderControls(); renderColPanel(); renderHead(); renderRows(); renderBadge(); }
+    function applyRemoteCols(list) { if (resizing || dragKey) return; cols[T.key] = normalize(list); store(`chevy.${T.key}.cols`, cols[T.key]); render(); }
+    return { T, main, render, applyRemoteCols };
+  }
+
+  // ---------- Editor ----------
+  let editing = null, confirmDelete = false;
+  const draft = { links: [] };
+  function renderLinkEditor() {
+    const chips = $("ed-links"), sel = $("ed-addlink"); if (!chips) return;
+    chips.innerHTML = draft.links.length
+      ? draft.links.map(id => byId.get(id)).filter(Boolean).sort(titleSort).map(x => `<span class="lchip"><i class="tdot t-${x.type}" aria-hidden="true"></i><button type="button" class="go" data-goto="${esc(x.e.id)}">${esc(x.e.title || "Untitled")}</button><button type="button" data-unlink="${esc(x.e.id)}" aria-label="Remove link to ${esc(x.e.title)}">×</button></span>`).join("")
+      : `<span class="none">No links yet.</span>`;
+    let any = false;
+    const groups = TYPES.map(T => {
+      const opts = data[T.key].filter(e => e.id !== editing.id && !draft.links.includes(e.id)).map(e => ({ e })).sort(titleSort);
+      if (opts.length) any = true;
+      return opts.length ? `<optgroup label="${T.label}">${opts.map(({ e }) => `<option value="${esc(e.id)}">${esc(e.title || "Untitled")}</option>`).join("")}</optgroup>` : "";
+    }).join("");
+    sel.innerHTML = `<option value="">${any ? "+ Link a project or page…" : "Nothing else to link yet"}</option>` + groups;
+  }
+  $("edFields").addEventListener("change", e => { if (e.target.id === "ed-addlink" && e.target.value) { draft.links.push(e.target.value); renderLinkEditor(); } });
+  $("edFields").addEventListener("click", e => {
+    const b = e.target.closest("[data-unlink]"); if (b) { draft.links = draft.links.filter(id => id !== b.dataset.unlink); renderLinkEditor(); return; }
+    const g = e.target.closest("[data-goto]"); if (g) { const t = byId.get(g.dataset.goto); if (t) navigateTo(t.type, t.e.id); }
+  });
+
+  // Notes: Markdown with [[Title]] links
+  const WIKI = /\[\[([^\[\]\n|]+)(?:\|([^\[\]\n]+))?\]\]/g;
+  function findByTitle(t) {
+    const q = t.trim().toLowerCase(); if (!q) return null;
+    for (const x of byId.values()) if ((x.e.title || "").trim().toLowerCase() === q) return x;
+    return null;
+  }
+  function renderMd(src) {
+    const withLinks = src.replace(WIKI, (m, t, alias) => {
+      const hit = findByTitle(t);
+      return `<a href="#" class="wikilink${hit ? "" : " missing"}" data-wl="${esc(t.trim())}" title="${hit ? "Open " + esc(hit.e.title) : "Create a page called " + esc(t.trim())}">${esc((alias || t).trim())}</a>`;
+    });
+    if (window.marked && window.DOMPurify) {
+      const html = marked.parse(withLinks, { gfm: true, breaks: true });
+      return DOMPurify.sanitize(html, { ADD_ATTR: ["data-wl", "target"] });
+    }
+    return withLinks.split(/\n/).map(line => line.replace(/<(?!\/?a[ >])/g, "&lt;")).join("<br>");
+  }
+  let bodyMode = "view", navStack = [], sugg = { items: [], i: 0, start: -1 };
+  function renderBody() {
+    const view = $("bodyView"), wrap = $("bodyEditWrap");
+    view.hidden = bodyMode !== "view"; wrap.hidden = bodyMode !== "edit";
+    $("bodyToggle").textContent = bodyMode === "view" ? "Edit" : "Preview";
+    if (bodyMode === "view") {
+      view.innerHTML = draft.body.trim() ? renderMd(draft.body) : `<p class="placeholder">Nothing written yet. Tap here to start writing.</p>`;
+      view.querySelectorAll('a[href]:not(.wikilink)').forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
+      view.querySelectorAll('input[type="checkbox"]').forEach(c => { c.disabled = true; });
+    } else if ($("bodyEdit").value !== draft.body) $("bodyEdit").value = draft.body;
+    hideSuggest();
+  }
+  function setBodyMode(m, focus) { bodyMode = m; renderBody(); if (m === "edit" && focus) { const t = $("bodyEdit"); t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
+  $("bodyToggle").addEventListener("click", () => setBodyMode(bodyMode === "view" ? "edit" : "view", true));
+  $("bodyView").addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (a && a.dataset.wl !== undefined) { e.preventDefault(); followWiki(a.dataset.wl); return; }
+    if (a) return;
+    setBodyMode("edit", true);
+  });
+  $("bodyView").addEventListener("keydown", e => { if (e.key === "Enter" && !e.target.closest("a")) { e.preventDefault(); setBodyMode("edit", true); } });
+
+  // [[ suggestions while typing
+  function hideSuggest() { $("suggest").hidden = true; sugg.items = []; }
+  function updateSuggest() {
+    const ta = $("bodyEdit"), before = ta.value.slice(0, ta.selectionStart);
+    const m = before.match(/\[\[([^\[\]\n|]*)$/);
+    if (!m) { hideSuggest(); return; }
+    const q = m[1].trim().toLowerCase();
+    sugg.start = m.index;
+    sugg.items = [...byId.values()].filter(x => x.e.id !== editing.id && (x.e.title || "").toLowerCase().includes(q))
+      .sort((a, b) => { const A = (a.e.title || "").toLowerCase().startsWith(q) ? 0 : 1, B = (b.e.title || "").toLowerCase().startsWith(q) ? 0 : 1; return A - B || titleSort(a, b); }).slice(0, 8);
+    if (sugg.i >= sugg.items.length) sugg.i = 0;
+    const box = $("suggest");
+    box.innerHTML = sugg.items.length
+      ? sugg.items.map((x, i) => `<button type="button" role="option" aria-selected="${i === sugg.i}" data-si="${i}"><i class="tdot t-${x.type}" aria-hidden="true"></i>${esc(x.e.title || "Untitled")}</button>`).join("")
+      : `<div class="empty-s">${q ? "No match. Finish typing and close with ]] to make a new page link." : "Type a title…"}</div>`;
+    box.hidden = false;
+  }
+  function pickSuggest(i) {
+    const x = sugg.items[i]; if (!x) return;
+    const ta = $("bodyEdit"), pos = ta.selectionStart;
+    let after = ta.value.slice(pos);
+    if (after.startsWith("]]")) after = after.slice(2);
+    const ins = "[[" + (x.e.title || "Untitled") + "]]";
+    ta.value = ta.value.slice(0, sugg.start) + ins + after;
+    const caret = sugg.start + ins.length;
+    ta.setSelectionRange(caret, caret); ta.focus();
+    draft.body = ta.value; hideSuggest();
+  }
+  $("bodyEdit").addEventListener("input", e => { draft.body = e.target.value; updateSuggest(); });
+  $("bodyEdit").addEventListener("click", updateSuggest);
+  $("bodyEdit").addEventListener("blur", () => setTimeout(hideSuggest, 150));
+  $("bodyEdit").addEventListener("keydown", e => {
+    if ($("suggest").hidden || !sugg.items.length) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); sugg.i = (sugg.i + (e.key === "ArrowDown" ? 1 : -1) + sugg.items.length) % sugg.items.length; updateSuggest(); }
+    else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); pickSuggest(sugg.i); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); hideSuggest(); }
+  });
+  $("suggest").addEventListener("mousedown", e => { const b = e.target.closest("[data-si]"); if (b) { e.preventDefault(); pickSuggest(+b.dataset.si); } });
+
+  function openEditor(type, id, opts = {}) {
+    const T = TYPE[type], e = id ? data[type].find(x => x.id === id) : null;
+    editing = { type, id: e ? e.id : newId(T), isNew: !e }; confirmDelete = false;
+    if (!opts.keepStack) navStack = [];
+    $("dlgTitle").textContent = (e ? "" : "New ") + T.singular;
+    $("edFields").innerHTML = T.props.map(P => `<div class="f">${K[P.kind].editHtml(P, e || (opts.title ? { title: opts.title } : null))}</div>`).join("");
+    draft.links = e ? linksOf(e.id).map(x => x.e.id) : (opts.linkTo ? [opts.linkTo] : []);
+    draft.body = e?.body || "";
+    bodyMode = draft.body.trim() ? "view" : (e ? "view" : "edit");
+    renderLinkEditor(); renderBody();
+    $("backBtn").hidden = !navStack.length;
+    $("eErr").textContent = "";
+    $("deleteBtn").hidden = !e; $("deleteBtn").textContent = "Delete";
+    $("overlay").hidden = false;
+    $("editForm").scrollTop = 0;
+    setTimeout(() => { if (!e && !opts.title) $("ed-title")?.focus(); }, 0);
+  }
+  const closeEditor = () => { $("overlay").hidden = true; editing = null; navStack = []; hideSuggest(); };
+  $("cancelBtn").addEventListener("click", closeEditor);
+  $("overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeEditor(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("overlay").hidden && $("suggest").hidden) closeEditor(); });
+
+  // Save what's open. Returns true when saved (or nothing needed saving).
+  async function saveCurrent() {
+    const { type, id, isNew } = editing, T = TYPE[type];
+    const existing = data[type].find(x => x.id === id);
+    const out = { ...(existing || {}), id };
+    for (const P of T.props) { const err = K[P.kind].read(P, out); if (err) { $("eErr").textContent = err; return false; } }
+    out.body = draft.body;
+    // [[links]] written in the notes become links too
+    const fromBody = [];
+    draft.body.replace(WIKI, (m, t) => { const hit = findByTitle(t); if (hit && hit.e.id !== id) fromBody.push(hit.e.id); return m; });
+    const links = [...new Set([...draft.links, ...fromBody])];
+    out.links = links;
+    if (existing) {
+      const same = JSON.stringify({ ...existing, updatedAt: 0 }) === JSON.stringify({ ...out, updatedAt: 0 });
+      const sameLinks = [...(adj.get(id) || [])].sort().join() === [...links].sort().join();
+      if (same && sameLinks) return true;
+    }
+    const now = new Date().toISOString();
+    out.updatedAt = now; if (isNew) out.createdAt = now;
+    const before = existing ? [...(adj.get(id) || [])] : [];
+    const added = links.filter(x => !before.includes(x)), removed = before.filter(x => !links.includes(x));
+    try {
+      await saveEntry(type, out);
+      for (const oid of [...added, ...removed]) {
+        const o = byId.get(oid); if (!o) continue;
+        const ol = (Array.isArray(o.e.links) ? o.e.links : []).filter(x => x !== id);
+        if (added.includes(oid)) ol.push(id);
+        await saveEntry(o.type, { ...o.e, links: ol, updatedAt: now });
+      }
+      editing.isNew = false;
+      return true;
+    } catch (err) { $("eErr").textContent = err.message; return false; }
+  }
+  $("editForm").addEventListener("submit", async ev => { ev.preventDefault(); if (await saveCurrent()) closeEditor(); });
+
+  // Following a link saves this entry first, then opens the other one; Back returns.
+  async function navigateTo(type, id, opts = {}) {
+    const here = { type: editing.type, id: editing.id };
+    if (!(await saveCurrent())) return;
+    buildAdj();
+    navStack.push(here);
+    openEditor(type, id, { ...opts, keepStack: true });
+  }
+  function followWiki(title) {
+    const hit = findByTitle(title);
+    if (hit) navigateTo(hit.type, hit.e.id);
+    else navigateTo("pages", null, { title: title.trim(), linkTo: editing.id });
+  }
+  $("backBtn").addEventListener("click", async () => {
+    const prev = navStack.pop(); if (!prev) return;
+    if (!(await saveCurrent())) { navStack.push(prev); return; }
+    buildAdj();
+    openEditor(prev.type, prev.id, { keepStack: true });
+  });
+  $("deleteBtn").addEventListener("click", async () => {
+    if (!editing) return;
+    if (!confirmDelete) { confirmDelete = true; $("deleteBtn").textContent = "Click again to delete"; return; }
+    const { type, id } = editing;
+    try {
+      const others = [...byId.values()].filter(o => o.e.id !== id && Array.isArray(o.e.links) && o.e.links.includes(id));
+      await deleteEntry(type, id);
+      for (const o of others) await saveEntry(o.type, { ...o.e, links: o.e.links.filter(x => x !== id), updatedAt: new Date().toISOString() });
+      closeEditor();
+    } catch (err) { $("eErr").textContent = "Couldn't delete (" + (err.code || "error") + "). Try again."; }
+  });
+
+  // ---------- Graph ----------
+  
+  let settledFit = false, graphVisible = false, gNodes = [], gLinks = [], sim = null, hoverId = null, fitted = false;
+  let transform = { x: 0, y: 0, k: 1 };
+  const gOpts = { projects: true, pages: true, orphans: true, done: true, labels: true };
+  try { Object.assign(gOpts, JSON.parse(localStorage.getItem("chevy.graph.opts") || "{}")); } catch (e) {}
+  $("gProjects").checked = gOpts.projects; $("gPages").checked = gOpts.pages; $("gOrphans").checked = gOpts.orphans; $("gDone").checked = gOpts.done; $("gLabels").checked = gOpts.labels;
+  [["gProjects", "projects"], ["gPages", "pages"], ["gOrphans", "orphans"], ["gDone", "done"], ["gLabels", "labels"]].forEach(([id, k]) => $(id).addEventListener("change", e => {
+    gOpts[k] = e.target.checked;
+    try { localStorage.setItem("chevy.graph.opts", JSON.stringify(gOpts)); } catch (err) {}
+    if (k === "labels") draw(); else { fitted = false; renderGraph(); }
+  }));
+  (function () {
+    let open = recall("chevy.graph.panelOpen") === true;
+    const apply = () => { $("graphPanel").hidden = !open; $("toggleGraphOpts").setAttribute("aria-expanded", String(open)); };
+    const set = (v) => { open = v; apply(); store("chevy.graph.panelOpen", open); };
+    $("toggleGraphOpts").addEventListener("click", () => set(!open));
+    document.querySelector('[data-close="graphPanel"]').addEventListener("click", () => set(false));
+    apply();
+  })();
+
+  const canvas = $("graph"), ctx = canvas.getContext("2d");
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let W = 0, H = 0, centered = false;
+  function sizeCanvas() {
+    const r = $("graphWrap").getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    if (!r.width) return;
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!centered && zoom) { centered = true; d3.select(canvas).call(zoom.transform, d3.zoomIdentity.translate(W / 2, H / 2)); }
+    draw();
+  }
+  window.addEventListener("resize", () => { if (graphVisible) sizeCanvas(); });
+  const radius = (n) => 6 + Math.sqrt(n.degree) * 3.2;
+
+  function setEmpty(html) { const el = $("graphEmpty"); el.hidden = !html; if (html) el.innerHTML = html; }
+
+  function renderGraph() {
+    $("graphLegend").innerHTML = STATUSES.map(s => `<span><i style="background:var(${s.color})"></i>${s.v} project</span>`).join("") + `<span><i class="sq" style="background:var(--page)"></i>Page</span>`;
+    if (!window.d3) { setEmpty("<div><strong>The graph couldn't load</strong>Check your connection and reopen this page.</div>"); return; }
+    const prev = new Map(gNodes.map(n => [n.id, n]));
+    let items = [...byId.values()].filter(({ type, e }) => gOpts[type] && (gOpts.done || e.status !== "Done"));
+    const ids = new Set(items.map(x => x.e.id));
+    const links = [];
+    adj.forEach((set, a) => set.forEach(b => { if (a < b && ids.has(a) && ids.has(b)) links.push({ source: a, target: b }); }));
+    const deg = new Map();
+    links.forEach(l => { deg.set(l.source, (deg.get(l.source) || 0) + 1); deg.set(l.target, (deg.get(l.target) || 0) + 1); });
+    if (!gOpts.orphans) items = items.filter(x => deg.get(x.e.id));
+    gNodes = items.map(({ type, e }) => {
+      const o = prev.get(e.id);
+      return Object.assign(o || { x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200 },
+        { id: e.id, type, title: e.title || "Untitled", status: e.status || "", degree: deg.get(e.id) || 0 });
+    });
+    gLinks = links.map(l => ({ ...l }));
+    const nP = gNodes.filter(n => n.type === "projects").length, nG = gNodes.length - nP;
+    $("graphCount").textContent = `${nP} project${nP === 1 ? "" : "s"} · ${nG} page${nG === 1 ? "" : "s"} · ${gLinks.length} link${gLinks.length === 1 ? "" : "s"}`;
+    if (!byId.size) setEmpty("<div><strong>Nothing here yet</strong>Add projects or pages, then link them.</div>");
+    else if (!gNodes.length) setEmpty("<div><strong>Nothing to show</strong>Change what's shown under Display, or link some projects and pages.</div>");
+    else if (!gLinks.length) setEmpty("<div style='align-self:end'>Open a project or page and use Links to draw your first connection.</div>");
+    else setEmpty("");
+    if (!graphVisible) return;
+    if (!sim) {
+      sim = d3.forceSimulation()
+        .force("charge", d3.forceManyBody().strength(-260))
+        .force("link", d3.forceLink().id(d => d.id).distance(95).strength(0.6))
+        .force("x", d3.forceX(0).strength(0.06))
+        .force("y", d3.forceY(0).strength(0.06))
+        .force("collide", d3.forceCollide().radius(d => radius(d) + 6))
+        .on("tick", () => { draw(); if (!fitted && sim.alpha() < 0.12) { fitted = true; fitGraph(); } })
+        .on("end", () => { if (!settledFit) { settledFit = true; fitGraph(); } });
+    }
+    sim.nodes(gNodes);
+    sim.force("link").links(gLinks);
+    sim.alpha(prev.size ? 0.35 : 1).restart();
+  }
+
+  function neighborsOf(id) {
+    const s = new Set([id]);
+    gLinks.forEach(l => { if (l.source.id === id) s.add(l.target.id); if (l.target.id === id) s.add(l.source.id); });
+    return s;
+  }
+
+  function draw() {
+    if (!graphVisible || !W) return;
+    ctx.save();
+    ctx.clearRect(0, 0, W, H);
+    ctx.translate(transform.x, transform.y);
+    ctx.scale(transform.k, transform.k);
+    const lineC = cssVar("--muted"), accent = cssVar("--accent"), ink = cssVar("--ink"), muted = cssVar("--muted"), bg = cssVar("--graph-bg");
+    const hi = hoverId ? neighborsOf(hoverId) : null;
+    gLinks.forEach(l => {
+      if (typeof l.source !== "object") return;
+      const on = hi && (l.source.id === hoverId || l.target.id === hoverId);
+      ctx.strokeStyle = on ? accent : lineC;
+      ctx.globalAlpha = hi ? (on ? 0.95 : 0.1) : 0.35;
+      ctx.lineWidth = (on ? 2.2 : 1.3) / Math.sqrt(transform.k);
+      ctx.beginPath(); ctx.moveTo(l.source.x, l.source.y); ctx.lineTo(l.target.x, l.target.y); ctx.stroke();
+    });
+    gNodes.forEach(n => {
+      ctx.globalAlpha = hi && !hi.has(n.id) ? 0.2 : 1;
+      const r = radius(n);
+      ctx.beginPath();
+      if (n.type === "pages") { const s = r * 0.9; if (ctx.roundRect) ctx.roundRect(n.x - s, n.y - s, s * 2, s * 2, s * 0.35); else ctx.rect(n.x - s, n.y - s, s * 2, s * 2); }
+      else ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = cssVar(n.type === "pages" ? "--page" : statusOf(n.status).color); ctx.fill();
+      if (n.id === hoverId) { ctx.lineWidth = 2.5 / transform.k; ctx.strokeStyle = ink; ctx.stroke(); }
+    });
+    const showAll = gOpts.labels && transform.k > 0.5;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.font = `500 ${12 / Math.max(transform.k, 0.8)}px "IBM Plex Sans", system-ui, sans-serif`;
+    gNodes.forEach(n => {
+      const focus = hi && hi.has(n.id);
+      if (!showAll && !focus) return;
+      ctx.globalAlpha = hi && !focus ? 0.2 : 1;
+      const t = n.title.length > 32 ? n.title.slice(0, 31) + "…" : n.title;
+      const y = n.y + radius(n) + 3;
+      ctx.lineJoin = "round"; ctx.lineWidth = 3 / transform.k; ctx.strokeStyle = bg; ctx.strokeText(t, n.x, y);
+      ctx.fillStyle = n.status === "Done" && n.id !== hoverId ? muted : ink; ctx.fillText(t, n.x, y);
+    });
+    ctx.restore();
+  }
+
+  const toGraph = (px, py) => [(px - transform.x) / transform.k, (py - transform.y) / transform.k];
+  function nodeAt(px, py) {
+    const [x, y] = toGraph(px, py);
+    for (let i = gNodes.length - 1; i >= 0; i--) {
+      const n = gNodes[i], r = radius(n) + 6 / transform.k;
+      if ((n.x - x) ** 2 + (n.y - y) ** 2 <= r * r) return n;
+    }
+    return null;
+  }
+
+  let zoom = null;
+  if (window.d3) {
+    const sel = d3.select(canvas);
+    let dragMoved = false;
+    sel.call(d3.drag()
+      .container(canvas)
+      .subject(e => nodeAt(e.x, e.y))
+      .on("start", e => { dragMoved = false; if (!e.active) sim.alphaTarget(0.25).restart(); e.subject.fx = e.subject.x; e.subject.fy = e.subject.y; hoverId = e.subject.id; draw(); })
+      .on("drag", e => { dragMoved = true; const [x, y] = toGraph(e.x, e.y); e.subject.fx = x; e.subject.fy = y; })
+      .on("end", e => {
+        if (!e.active) sim.alphaTarget(0);
+        e.subject.fx = null; e.subject.fy = null;
+        const touch = e.sourceEvent && e.sourceEvent.pointerType && e.sourceEvent.pointerType !== "mouse";
+        if (touch) hoverId = null;
+        draw();
+        if (!dragMoved) openEditor(e.subject.type, e.subject.id);
+      }));
+    zoom = d3.zoom().scaleExtent([0.2, 4])
+      .filter(e => e.type === "wheel" || !nodeAt(...d3.pointer(e.touches ? e.touches[0] : e, canvas)))
+      .on("zoom", e => { transform = { x: e.transform.x, y: e.transform.y, k: e.transform.k }; draw(); });
+    sel.call(zoom).on("dblclick.zoom", null);
+    sel.on("pointermove.hover", e => {
+      if (e.pointerType !== "mouse") return;
+      const n = nodeAt(...d3.pointer(e, canvas)), id = n ? n.id : null;
+      canvas.classList.toggle("hovering", !!n);
+      if (id !== hoverId) { hoverId = id; draw(); }
+    });
+    sel.on("pointerleave.hover", () => { if (hoverId) { hoverId = null; draw(); } });
+  }
+  function fitGraph() {
+    if (!zoom || !gNodes.length || !W) return;
+    const xs = gNodes.map(n => n.x), ys = gNodes.map(n => n.y);
+    const minX = Math.min(...xs) - 50, maxX = Math.max(...xs) + 50, minY = Math.min(...ys) - 40, maxY = Math.max(...ys) + 60;
+    const k = Math.max(0.2, Math.min(1.8, Math.min(W / (maxX - minX), H / (maxY - minY))));
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    d3.select(canvas).transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(W / 2 - cx * k, H / 2 - cy * k).scale(k));
+  }
+  $("fitGraph").addEventListener("click", fitGraph);
+  try {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+    new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  } catch (e) {}
+
+
+  // ---------- Tabs ----------
+  const TABS = [...TYPES.map(T => ({ key: T.key, label: T.label })), { key: "graph", label: "Graph" }];
+  $("tabs").innerHTML = TABS.map(t => `<button class="tab" role="tab" type="button" data-view="${t.key}" aria-selected="false">${t.label}</button>`).join("");
+  TYPES.forEach(T => { views[T.key] = makeView(T); });
+  function showView() {
+    let v = (location.hash || "#projects").slice(1);
+    if (!TABS.some(t => t.key === v)) v = "projects";
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === v)));
+    TYPES.forEach(T => { views[T.key].main.hidden = v !== T.key; });
+    $("view-graph").hidden = v !== "graph";
+    graphVisible = v === "graph";
+    if (graphVisible) { sizeCanvas(); renderGraph(); }
+  }
+  $("tabs").addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) location.hash = t.dataset.view; });
+  window.addEventListener("hashchange", showView);
+
+  function renderAll() { buildAdj(); TYPES.forEach(T => views[T.key].render()); renderGraph(); if (editing && !$("overlay").hidden) renderLinkEditor(); }
+
+  // ---------- Saved data: kept in this browser ----------
+  function persist() {
+    try { localStorage.setItem("chevy.data", JSON.stringify(data)); }
+    catch (e) { notice("Your browser wouldn't save the latest change. It may be out of storage space or in private mode."); }
+  }
+  local = true; clearTimeout(loadTimer);
+  try {
+    const saved = JSON.parse(localStorage.getItem("chevy.data") || "null");
+    if (saved) TYPES.forEach(T => { if (Array.isArray(saved[T.key])) data[T.key] = saved[T.key]; });
+  } catch (e) {
+    notice("This browser isn't letting Chevy save, so changes last only until you close the page. Private browsing can cause this.");
+  }
+  TYPES.forEach(T => { loaded[T.key] = true; });
+
+  showView();
+  renderAll();
+})();
+
+</script>
+</body>
+</html>
