@@ -112,3 +112,120 @@ s = s[:start] + '''  // ---------- Data: Maggie's published entries + this visit
 ''' + s[end:]
 open(dst, 'w').write(s)
 print("built", dst)
+
+# ---------- Send entries to Maggie (Netlify Forms) ----------
+s = open(dst).read()
+def r2(a, b):
+    global s
+    assert a in s, "MISSING: " + a[:90]
+    s = s.replace(a, b, 1)
+
+s = s.replace('</style>', '''
+.site-banner .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn.small-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+:root[data-theme="dark"] .btn.small-primary { color: #0f1424; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.small-primary { color: #0f1424; } }
+.send-list { display: grid; gap: 4px; max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.dialog .send-list input { width: auto; flex: none; padding: 0; }
+.send-list label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 2px 0; }
+.send-list .sent { font-size: 11px; color: var(--good); font-weight: 600; }
+.send-ok { background: var(--good-soft); color: var(--good); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.send-ok[hidden] { display: none; }
+.dialog .f textarea { padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); width: 100%; min-height: 70px; resize: vertical; font: inherit; }
+.sent-tag { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--good); background: var(--good-soft); border-radius: 4px; padding: 1px 6px; flex: none; }
+</style>''', 1)
+
+r2('''<button type="button" class="btn" id="clearSandbox" hidden>Clear my entries</button>''',
+   '''<span class="actions"><button type="button" class="btn small-primary" id="openSend" hidden>Send my entries to Maggie</button><button type="button" class="btn" id="clearSandbox" hidden>Clear my entries</button></span>''')
+
+r2('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>', '''<!-- Netlify reads this hidden form at deploy time so submissions are accepted -->
+<form name="chevy-submissions" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="bot-field"><input name="name"><input name="email"><textarea name="message"></textarea><textarea name="summary"></textarea><textarea name="entries"></textarea>
+</form>
+
+<div class="overlay" id="sendOverlay" hidden>
+  <form class="dialog" id="sendForm" role="dialog" aria-modal="true" aria-labelledby="sendTitle">
+    <h2 id="sendTitle">Send entries to Maggie</h2>
+    <p style="margin:0;color:var(--muted);font-size:14px">Pick the entries you'd like Maggie to consider. She decides what gets added to her Chevy.</p>
+    <div class="f"><span class="flabel">Entries to send</span><div class="send-list" id="sendList"></div></div>
+    <div class="f"><label for="sendName">Your name (optional)</label><input id="sendName" type="text" autocomplete="name"></div>
+    <div class="f"><label for="sendEmail">Your email (optional, so she can reply)</label><input id="sendEmail" type="email" autocomplete="email"></div>
+    <div class="f"><label for="sendMsg">Note to Maggie (optional)</label><textarea id="sendMsg"></textarea></div>
+    <p hidden><label>Leave this empty <input id="sendBot" type="text" tabindex="-1" autocomplete="off"></label></p>
+    <div class="send-ok" id="sendOk" hidden></div>
+    <div class="err" id="sendErr"></div>
+    <div class="dialog-actions"><div class="right"><button class="btn" type="button" id="sendCancel">Cancel</button><button class="btn primary" type="submit" id="sendSubmit">Send</button></div></div>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>''')
+
+# show a "Sent" tag on entries already sent
+r2('''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}''',
+   '''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}${!e._pub && e.sentAt ? '<span class="sent-tag">Sent</span>' : ""}''')
+
+# show the send button whenever there are sandbox entries
+s = s.replace('''$("clearSandbox").hidden = !TYPES.some(T => sandbox[T.key].length);''',
+              '''$("clearSandbox").hidden = $("openSend").hidden = !TYPES.some(T => sandbox[T.key].length);''')
+
+r2('''  TYPES.forEach(T => { data[T.key] = [...sandbox[T.key]]; });''', r'''  TYPES.forEach(T => { data[T.key] = [...sandbox[T.key]]; });
+
+  // ---------- Send entries to Maggie ----------
+  const mine = () => TYPES.flatMap(T => data[T.key].filter(e => !published.has(e.id)).map(e => ({ type: T.key, e })));
+  function describe({ type, e }) {
+    const T = TYPE[type], lines = [`${T.singular.toUpperCase()}: ${e.title || "Untitled"}`];
+    T.props.forEach(P => {
+      if (P.kind === "title") return;
+      let v = "";
+      if (P.kind === "date") v = e[P.field] ? fmt(e[P.field]) + (P.withTime && fmtTime(e[P.field]) ? ", " + fmtTime(e[P.field]) : "") : "";
+      else if (P.kind === "status") v = e.status || "Not started";
+      else if (P.kind === "daterange") v = fmtRange(e[P.start], e[P.end]);
+      else if (P.kind === "links") v = linksOf(e.id).map(x => x.e.title + (x.e._pub ? "" : " (theirs)")).join(", ");
+      if (v) lines.push(`${P.label}: ${v}`);
+    });
+    if ((e.body || "").trim()) lines.push("Notes:", e.body.trim());
+    return lines.join("\n");
+  }
+  function openSend() {
+    const list = mine().sort(titleSort);
+    $("sendList").innerHTML = list.map(x => `<label><input type="checkbox" value="${esc(x.e.id)}" ${x.e.sentAt ? "" : "checked"}><i class="tdot t-${x.type}" aria-hidden="true"></i>${esc(x.e.title || "Untitled")}${x.e.sentAt ? ' <span class="sent">sent before</span>' : ""}</label>`).join("");
+    $("sendOk").hidden = true; $("sendErr").textContent = "";
+    $("sendSubmit").hidden = false; $("sendSubmit").disabled = false; $("sendSubmit").textContent = "Send";
+    $("sendCancel").textContent = "Cancel";
+    $("sendOverlay").hidden = false;
+  }
+  const closeSend = () => { $("sendOverlay").hidden = true; };
+  $("openSend").addEventListener("click", openSend);
+  $("sendCancel").addEventListener("click", closeSend);
+  $("sendOverlay").addEventListener("click", e => { if (e.target.id === "sendOverlay") closeSend(); });
+  $("sendForm").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const ids = [...$("sendList").querySelectorAll("input:checked")].map(i => i.value);
+    if (!ids.length) { $("sendErr").textContent = "Tick at least one entry to send."; return; }
+    const chosen = mine().filter(x => ids.includes(x.e.id));
+    const payload = chosen.map(({ type, e }) => { const c = { ...e }; delete c.sentAt; return { type, ...c }; });
+    const body = new URLSearchParams({
+      "form-name": "chevy-submissions",
+      "bot-field": $("sendBot").value,
+      name: $("sendName").value.trim(),
+      email: $("sendEmail").value.trim(),
+      message: $("sendMsg").value.trim(),
+      summary: chosen.map(describe).join("\n\n----------\n\n"),
+      entries: JSON.stringify(payload),
+    });
+    $("sendSubmit").disabled = true; $("sendSubmit").textContent = "Sending…"; $("sendErr").textContent = "";
+    try {
+      const res = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
+      if (!res.ok) throw new Error(res.status);
+      const now = new Date().toISOString();
+      TYPES.forEach(T => { data[T.key] = data[T.key].map(e => ids.includes(e.id) ? { ...e, sentAt: now } : e); });
+      persistSandbox(); renderAll();
+      $("sendOk").textContent = `Sent ${ids.length} entr${ids.length === 1 ? "y" : "ies"} to Maggie. Thank you! Your copies stay here on this device.`;
+      $("sendOk").hidden = false; $("sendSubmit").hidden = true; $("sendCancel").textContent = "Close";
+    } catch (err) {
+      $("sendErr").textContent = "That didn't send. Check your connection and try again.";
+      $("sendSubmit").disabled = false; $("sendSubmit").textContent = "Send";
+    }
+  });''')
+open(dst, 'w').write(s)
+print("send feature added")
