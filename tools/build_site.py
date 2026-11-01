@@ -223,7 +223,9 @@ r2('''  TYPES.forEach(T => { data[T.key] = [...sandbox[T.key]]; });''', r'''  TY
       $("sendOk").textContent = `Sent ${ids.length} entr${ids.length === 1 ? "y" : "ies"} to Maggie. Thank you! Your copies stay here on this device.`;
       $("sendOk").hidden = false; $("sendSubmit").hidden = true; $("sendCancel").textContent = "Close";
     } catch (err) {
-      $("sendErr").textContent = "That didn't send. Check your connection and try again.";
+      $("sendErr").textContent = /^\d+$/.test(err.message)
+        ? `That didn't send (error ${err.message}). Maggie's site isn't accepting messages yet. Please try again later.`
+        : "That didn't send. Check your connection and try again.";
       $("sendSubmit").disabled = false; $("sendSubmit").textContent = "Send";
     }
   });''')
