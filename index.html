@@ -259,6 +259,47 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
   .dialog { border-radius: 0; height: 100%; width: 100%; padding: 16px; }
 }
 
+/* Layout tabs (Table / Gallery) */
+.layout-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-top: -4px; }
+.layout-tabs button { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px 7px; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; margin-bottom: -1px; }
+.layout-tabs button svg { width: 15px; height: 15px; }
+.layout-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.layout-tabs button:hover { color: var(--ink); }
+
+/* Gallery */
+.gallery { display: grid; gap: 18px; }
+.gallery[hidden], [data-r="tableWrap"][hidden] { display: none; }
+.g-group { display: grid; gap: 8px; }
+.g-group h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(var(--card-w, 240px), 100%), 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(20,30,60,.05); }
+.card:hover { box-shadow: 0 4px 14px rgba(20,30,60,.12); border-color: var(--panel-line); }
+.card-cover { aspect-ratio: 16 / 10; background: var(--panel); display: grid; place-items: center; overflow: hidden; border-bottom: 1px solid var(--line); }
+.card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-initial { font-family: var(--font-display); font-size: 34px; font-weight: 700; color: var(--panel-line); }
+.card-body { padding: 10px 12px 12px; display: grid; gap: 6px; min-width: 0; }
+.card-title { font-weight: 600; min-width: 0; }
+.card-title .title-cell { align-items: flex-start; }
+.card-title .title-text { white-space: normal; overflow-wrap: anywhere; }
+.card.done .title-text { text-decoration: line-through; color: var(--muted); font-weight: 500; }
+.card-prop { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; }
+.card-prop .lchips { flex-wrap: wrap; }
+.card .pill { cursor: default; font-size: 12px; padding: 2px 9px; }
+.gallery .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.gsize { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+
+/* Cover picture */
+.cover-thumb { width: 44px; height: 28px; object-fit: cover; border-radius: 4px; display: block; border: 1px solid var(--line); }
+.cover-edit { display: grid; gap: 8px; }
+.cover-prev { border-radius: 10px; overflow: hidden; background: var(--panel); aspect-ratio: 16 / 5; display: grid; place-items: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--panel-line); }
+.cover-prev.has { border: 0; }
+.cover-prev img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.cover-btns .btn { padding: 4px 12px; font-size: 13px; cursor: pointer; }
+.ed-fields .f:has(.cover-edit) { grid-column: 1 / -1; order: -1; }
+.dialog.ro .cover-btns { display: none !important; }
+.dialog.ro .cover-prev:not(.has) { display: none; }
+
 /* Public site: published entries are read-only; visitor entries are a sandbox */
 .site-banner { max-width: 1120px; margin: 0 auto; padding: 14px 20px 0; }
 .site-banner > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 10px; padding: 9px 14px; font-size: 13px; color: var(--ink); }
@@ -453,6 +494,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { key: "status", kind: "status", label: "Status", field: "status", width: 150 },
         { key: "focus", kind: "daterange", label: "Focus dates", start: "focusStart", end: "focusEnd", width: 250 },
         { key: "links", kind: "links", label: "Links", width: 240 },
+        { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
       ],
       groups: [
         { key: "none", label: "None" },
@@ -468,6 +510,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { key: "title", kind: "title", label: "Title", field: "title", width: 360 },
         { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
         { key: "links", kind: "links", label: "Links", width: 300 },
+        { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
       ],
       groups: [
         { key: "none", label: "None" },
@@ -602,6 +645,18 @@ select.pill:disabled { cursor: default; opacity: 1; }
         out[P.start] = s; out[P.end] = en;
       },
     },
+    image: {
+      empty: () => ({ mode: "any" }),
+      active: f => f.mode !== "any",
+      test: (e, P, f) => f.mode === "any" || (f.mode === "has" ? !!e[P.field] : !e[P.field]),
+      sortVal: (e, P) => e[P.field] ? 0 : "",
+      search: () => "",
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
+      sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = [["has", "Has a picture"], ["none", "No picture"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${f.mode === k}" data-act="lmode" data-val="${k}">${l}</button>`).join(""); },
+      cell: (e, P) => e[P.field] ? `<img class="cover-thumb" src="${esc(e[P.field])}" alt="">` : '<span style="color:var(--muted)">—</span>',
+      editHtml: (P) => `<div class="cover-edit"><span class="flabel">${P.label}</span><div class="cover-prev" id="ed-cover-prev"></div><div class="cover-btns"><label class="btn" for="ed-cover-file" id="ed-cover-add">Add picture</label><input type="file" accept="image/*" id="ed-cover-file" hidden><button type="button" class="btn" id="ed-cover-rm">Remove</button></div></div>`,
+      read: (P, out) => { out[P.field] = draft.cover || ""; },
+    },
     links: {
       empty: () => ({ to: "", mode: "any" }),
       active: f => !!f.to || f.mode !== "any",
@@ -642,10 +697,11 @@ select.pill:disabled { cursor: default; opacity: 1; }
         <div><h1>${T.label}</h1><div class="count" data-r="count">Loading…</div></div>
         <div class="head-actions">
           <button class="btn toggle" type="button" data-r="tCtl" aria-expanded="false">Search &amp; sort<span class="badge" data-r="badge" hidden></span></button>
-          <button class="btn toggle" type="button" data-r="tCols" aria-expanded="false">Columns</button>
+          <button class="btn toggle" type="button" data-r="tCols" aria-expanded="false"><span data-r="colsLabel">Columns</span></button>
           <button class="btn primary" type="button" data-r="add">+ New ${T.singular}</button>
         </div>
       </div>
+      <div class="layout-tabs" role="tablist" aria-label="${T.label} views" data-r="layouts"><button type="button" role="tab" data-layout="table"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6.5h12M2 10h12M6 6.5V13"/></svg>Table</button><button type="button" role="tab" data-layout="gallery"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9.5" width="5" height="5" rx="1"/><rect x="9" y="9.5" width="5" height="5" rx="1"/></svg>Gallery</button></div>
       <section class="panel" data-r="ctl" aria-label="Search, sort and filter ${T.label}" hidden>
         <div class="panel-head"><span class="panel-name">Search &amp; sort</span><button class="x" type="button" data-r="ctlX" aria-label="Close search and sort">×</button></div>
         <input class="search" data-r="q" type="search" placeholder="Search ${T.label.toLowerCase()}…" aria-label="Search ${T.label.toLowerCase()}">
@@ -656,29 +712,33 @@ select.pill:disabled { cursor: default; opacity: 1; }
         <div class="ctl-block"><div class="ctl-title">Group by</div><div class="chips" data-r="group"></div></div>
       </section>
       <section class="panel" data-r="colsPanel" aria-label="${T.label} columns" hidden>
-        <div class="panel-head"><span class="panel-name">Columns</span><button class="x" type="button" data-r="colsX" aria-label="Close columns">×</button></div>
-        <div class="hint">Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.</div>
+        <div class="panel-head"><span class="panel-name" data-r="colsName">Columns</span><button class="x" type="button" data-r="colsX" aria-label="Close columns">×</button></div>
+        <div class="gsize" data-r="gsize" hidden></div>
+        <div class="hint" data-r="colsHint">Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.</div>
         <div class="col-list" data-r="colList"></div>
         <div><button class="btn ghost" type="button" data-r="resetCols" style="padding:2px 6px;font-size:12px">Reset columns</button></div>
       </section>
-      <div class="table-wrap"><table data-r="table"><colgroup data-r="colgroup"></colgroup><thead><tr data-r="head"></tr></thead><tbody data-r="rows"></tbody></table></div>`;
+      <div class="gallery" data-r="gallery" hidden></div>
+      <div class="table-wrap" data-r="tableWrap"><table data-r="table"><colgroup data-r="colgroup"></colgroup><thead><tr data-r="head"></tr></thead><tbody data-r="rows"></tbody></table></div>`;
     $("views").appendChild(main);
     const R = (k) => main.querySelector(`[data-r="${k}"]`);
     const PROP = Object.fromEntries(T.props.map(P => [P.key, P]));
 
     // UI state, remembered in this browser
     const freshFilters = () => Object.fromEntries(T.props.map(P => [P.key, K[P.kind].empty()]));
-    let ui = { q: "", sortKey: T.defaultSort.key, sortDir: T.defaultSort.dir, f: freshFilters(), group: "none" };
+    let ui = { q: "", sortKey: T.defaultSort.key, sortDir: T.defaultSort.dir, f: freshFilters(), group: "none", layout: "table", gsize: "m" };
     const saved = recall(`chevy.${T.key}.view`);
     if (saved) {
       if (PROP[saved.sortKey]) { ui.sortKey = saved.sortKey; ui.sortDir = saved.sortDir === "asc" ? "asc" : "desc"; }
       if (T.groups.some(g => g.key === saved.group)) ui.group = saved.group;
+      if (["table", "gallery"].includes(saved.layout)) ui.layout = saved.layout;
+      if (["s", "m", "l"].includes(saved.gsize)) ui.gsize = saved.gsize;
       if (saved.f) T.props.forEach(P => { if (saved.f[P.key]) ui.f[P.key] = { ...K[P.kind].empty(), ...saved.f[P.key] }; });
     }
     const saveUi = () => store(`chevy.${T.key}.view`, { ...ui, q: "" });
 
     // Columns
-    const defaults = T.props.map(P => ({ key: P.key, visible: true, width: P.width }));
+    const defaults = T.props.map(P => ({ key: P.key, visible: !P.hidden, width: P.width }));
     const normalize = (list) => {
       const out = [];
       (Array.isArray(list) ? list : []).forEach(c => { if (c && PROP[c.key] && !out.some(o => o.key === c.key)) out.push({ key: c.key, visible: c.visible !== false, width: Math.max(90, Number(c.width) || PROP[c.key].width) }); });
@@ -842,9 +902,45 @@ select.pill:disabled { cursor: default; opacity: 1; }
       return list;
     }
     const rowHtml = (e) => `<tr class="row${hasStatus(T) && e.status === "Done" ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0">${shown().map(c => { const P = PROP[c.key]; return `<td data-label="${esc(P.label)}">${K[P.kind].cell(e, P, T)}</td>`; }).join("")}</tr>`;
+    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : false;
+    const cardCell = (e, P) => P.kind === "status" ? `<span class="pill ${statusOf(e.status).cls}">${esc(e.status || "Not started")}</span>` : K[P.kind].cell(e, P, T);
+    const cardHtml = (e) => {
+      const done = hasStatus(T) && e.status === "Done", vis = shown().map(c => c.key);
+      const initial = esc(((e.title || "?").trim()[0] || "?").toUpperCase());
+      const props = shown().map(c => PROP[c.key]).filter(P => P.kind !== "title" && P.kind !== "image" && hasVal(e, P));
+      return `<article class="card${done ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0" aria-label="${esc(e.title || "Untitled")}">
+        <div class="card-cover">${e.cover ? `<img src="${esc(e.cover)}" alt="" loading="lazy">` : `<span class="card-initial" aria-hidden="true">${initial}</span>`}</div>
+        <div class="card-body"><div class="card-title">${K.title.cell(e, PROP.title, T)}</div>${props.map(P => `<div class="card-prop" title="${esc(P.label)}">${cardCell(e, P)}</div>`).join("")}</div>
+      </article>`;
+    };
+    function groupedKeys(list) {
+      const g = T.groups.find(x => x.key === ui.group);
+      if (!g || !g.fn) return null;
+      const groups = new Map();
+      list.forEach(e => { const k = g.fn(e); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(e); });
+      let keys = [...groups.keys()];
+      if (g.order) keys.sort((a, b) => g.order.indexOf(a) - g.order.indexOf(b));
+      else if (g.sort === "monthDesc") {
+        const mk = (k) => { const e = groups.get(k)[0]; const v = e.created || e.createdTime || ""; return k === "No date" ? "" : v.slice(0, 7); };
+        keys.sort((a, b) => { const A = mk(a), B = mk(b); if (!A) return 1; if (!B) return -1; return B.localeCompare(A); });
+      }
+      return { keys, groups };
+    }
+    function renderGallery(list, total) {
+      const el = R("gallery");
+      el.style.setProperty("--card-w", { s: "180px", m: "240px", l: "320px" }[ui.gsize]);
+      if (!total) { el.innerHTML = loaded[T.key] ? `<div class="empty"><strong>No ${T.label.toLowerCase()} yet</strong>Add your first one with “+ New ${T.singular}”.</div>` : ""; return; }
+      if (!list.length) { el.innerHTML = `<div class="empty"><strong>Nothing matches</strong>Try clearing the search or filters.</div>`; return; }
+      const gk = groupedKeys(list);
+      if (!gk) { el.innerHTML = `<div class="g-grid">${list.map(cardHtml).join("")}</div>`; return; }
+      el.innerHTML = gk.keys.map(k => `<section class="g-group"><h3>${esc(k)} · ${gk.groups.get(k).length}</h3><div class="g-grid">${gk.groups.get(k).map(cardHtml).join("")}</div></section>`).join("");
+    }
     function renderRows() {
       const list = visible(), total = data[T.key].length, span = shown().length, noun = (n) => n === 1 ? T.singular : T.label.toLowerCase();
       R("count").textContent = !loaded[T.key] && !total ? "Loading…" : (list.length === total ? `${total} ${noun(total)}` : `Showing ${list.length} of ${total} ${noun(total)}`);
+      const gallery = ui.layout === "gallery";
+      R("gallery").hidden = !gallery; R("tableWrap").hidden = gallery;
+      if (gallery) { renderGallery(list, total); return; }
       const tb = R("rows");
       if (!total) { tb.innerHTML = loaded[T.key] ? `<tr><td colspan="${span}" class="empty"><strong>No ${T.label.toLowerCase()} yet</strong>Add your first one with “+ New ${T.singular}”.</td></tr>` : ""; return; }
       if (!list.length) { tb.innerHTML = `<tr><td colspan="${span}" class="empty"><strong>Nothing matches</strong>Try clearing the search or filters.</td></tr>`; return; }
@@ -873,14 +969,57 @@ select.pill:disabled { cursor: default; opacity: 1; }
       catch (err) { notice(err.message); renderAll(); }
     });
 
-    function render() { renderControls(); renderColPanel(); renderHead(); renderRows(); renderBadge(); }
+    R("gallery").addEventListener("click", e => {
+      const lk = e.target.closest("[data-open]"); if (lk) { const t = byId.get(lk.dataset.open); if (t) openEditor(t.type, t.e.id); return; }
+      const c = e.target.closest(".card"); if (c) openEditor(T.key, c.dataset.id);
+    });
+    R("gallery").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches(".card")) openEditor(T.key, e.target.dataset.id); });
+    R("layouts").addEventListener("click", e => { const b = e.target.closest("[data-layout]"); if (b) { ui.layout = b.dataset.layout; saveUi(); render(); } });
+    R("gsize").addEventListener("click", e => { const b = e.target.closest("[data-gsize]"); if (b) { ui.gsize = b.dataset.gsize; saveUi(); render(); } });
+    function renderLayout() {
+      const g = ui.layout === "gallery";
+      R("layouts").querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.layout === ui.layout)));
+      R("colsLabel").textContent = R("colsName").textContent = g ? "Properties" : "Columns";
+      R("colsHint").textContent = g ? "Tick the properties to show on each card and use the arrows to reorder them. Cards always show the cover and title." : "Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.";
+      R("gsize").hidden = !g;
+      R("gsize").innerHTML = `<span class="ctl-title">Card size</span><span class="chips">${[["s", "Small"], ["m", "Medium"], ["l", "Large"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${ui.gsize === k}" data-gsize="${k}">${l}</button>`).join("")}</span>`;
+    }
+    function render() { renderLayout(); renderControls(); renderColPanel(); renderHead(); renderRows(); renderBadge(); }
     function applyRemoteCols(list) { if (resizing || dragKey) return; cols[T.key] = normalize(list); store(`chevy.${T.key}.cols`, cols[T.key]); render(); }
     return { T, main, render, applyRemoteCols };
   }
 
   // ---------- Editor ----------
   let editing = null, confirmDelete = false;
-  const draft = { links: [] };
+  const draft = { links: [], cover: "" };
+  function renderCoverEditor() {
+    const prev = $("ed-cover-prev"); if (!prev) return;
+    prev.classList.toggle("has", !!draft.cover);
+    prev.innerHTML = draft.cover ? `<img src="${esc(draft.cover)}" alt="Cover picture">` : "No cover picture yet";
+    $("ed-cover-add").textContent = draft.cover ? "Change picture" : "Add picture";
+    $("ed-cover-rm").hidden = !draft.cover;
+  }
+  // Shrink pictures before saving so they stay small enough to store and load quickly
+  function shrinkImage(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.naturalWidth, h = img.naturalHeight, max = 1200, q = 0.82, out = "";
+        for (let i = 0; i < 6; i++) {
+          const k = Math.min(1, max / Math.max(w, h));
+          const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+          const cx = c.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+          out = c.toDataURL("image/jpeg", q);
+          if (out.length < 180000) break;
+          max = Math.round(max * 0.8); q = Math.max(0.55, q - 0.07);
+        }
+        resolve(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("That file couldn't be opened as a picture.")); };
+      img.src = url;
+    });
+  }
   function renderLinkEditor() {
     const chips = $("ed-links"), sel = $("ed-addlink"); if (!chips) return;
     chips.innerHTML = draft.links.length
@@ -894,8 +1033,17 @@ select.pill:disabled { cursor: default; opacity: 1; }
     }).join("");
     sel.innerHTML = `<option value="">${any ? "+ Link a project or page…" : "Nothing else to link yet"}</option>` + groups;
   }
-  $("edFields").addEventListener("change", e => { if (e.target.id === "ed-addlink" && e.target.value) { draft.links.push(e.target.value); renderLinkEditor(); } });
+  $("edFields").addEventListener("change", async e => {
+    if (e.target.id === "ed-addlink" && e.target.value) { draft.links.push(e.target.value); renderLinkEditor(); }
+    if (e.target.id === "ed-cover-file" && e.target.files && e.target.files[0]) {
+      $("ed-cover-add").textContent = "Loading…";
+      try { draft.cover = await shrinkImage(e.target.files[0]); $("eErr").textContent = ""; }
+      catch (err) { $("eErr").textContent = err.message; }
+      e.target.value = ""; renderCoverEditor();
+    }
+  });
   $("edFields").addEventListener("click", e => {
+    if (e.target.id === "ed-cover-rm") { draft.cover = ""; renderCoverEditor(); return; }
     const b = e.target.closest("[data-unlink]"); if (b) { draft.links = draft.links.filter(id => id !== b.dataset.unlink); renderLinkEditor(); return; }
     const g = e.target.closest("[data-goto]"); if (g) { const t = byId.get(g.dataset.goto); if (t) navigateTo(t.type, t.e.id); }
   });
@@ -988,6 +1136,8 @@ select.pill:disabled { cursor: default; opacity: 1; }
     $("edFields").innerHTML = T.props.map(P => `<div class="f">${K[P.kind].editHtml(P, e || (opts.title ? { title: opts.title } : null))}</div>`).join("");
     draft.links = e ? linksOf(e.id).map(x => x.e.id) : (opts.linkTo ? [opts.linkTo] : []);
     draft.body = e?.body || "";
+    draft.cover = e?.cover || "";
+    renderCoverEditor();
     bodyMode = draft.body.trim() ? "view" : (e ? "view" : "edit");
     renderLinkEditor(); renderBody();
     $("backBtn").hidden = !navStack.length;
