@@ -28,6 +28,10 @@ s = s.replace('</style>', '''
 select.pill:disabled { cursor: default; opacity: 1; }
 </style>''', 1)
 
+# ---------- Hide the "Show on website" property on the public site ----------
+s = s.replace('''
+        { key: "public", kind: "check", label: "Show on website", field: "public", width: 150 },''', "")
+
 # ---------- Banner ----------
 r('<div class="notice-wrap"><div class="notice" id="notice" hidden></div></div>',
   '''<div class="site-banner"><div><span id="bannerText">You're viewing Maggie's Chevy. You can add your own entries to try it out. They stay only on this device.</span><button type="button" class="btn" id="clearSandbox" hidden>Clear my entries</button></div></div>

@@ -375,6 +375,19 @@ td .tags { flex-wrap: nowrap; overflow: hidden; }
 .pinned { color: var(--accent); display: inline-flex; flex: none; }
 .pinned .pin { width: 13px; height: 13px; }
 
+/* Show on website */
+.pub-on { color: var(--accent); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.pub-edit { display: grid; gap: 4px; }
+.ed-fields .f:has(.pub-edit) { grid-column: 1 / -1; }
+.pub-toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 600; width: fit-content; }
+.pub-toggle input { position: absolute; opacity: 0; width: 1px !important; height: 1px; }
+.pub-switch { width: 36px; height: 20px; border-radius: 999px; background: var(--line); position: relative; flex: none; transition: background .15s; }
+.pub-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .15s, background .15s; }
+.pub-toggle input:checked + .pub-switch { background: var(--forest); }
+.pub-toggle input:checked + .pub-switch::after { transform: translateX(16px); background: var(--accent); }
+.pub-toggle input:focus-visible + .pub-switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pub-hint { font-size: 12px; color: var(--muted); }
+
 /* Public site: published entries are read-only; visitor entries are a sandbox */
 .site-banner { max-width: 1120px; margin: 0 auto; padding: 14px 20px 0; }
 .site-banner > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 10px; padding: 9px 14px; font-size: 13px; color: var(--ink); }
@@ -807,6 +820,18 @@ select.pill:disabled { cursor: default; opacity: 1; }
       editHtml: (P) => `<div class="cover-edit"><span class="flabel">${P.label}</span><div class="cover-prev" id="ed-cover-prev"></div><div class="cover-btns"><label class="btn" for="ed-cover-file" id="ed-cover-add">Add picture</label><input type="file" accept="image/*" id="ed-cover-file" hidden><button type="button" class="btn" id="ed-cover-rm">Remove</button></div></div>`,
       read: (P, out) => { out[P.field] = draft.cover || ""; },
     },
+    check: {
+      empty: () => ({ mode: "any" }),
+      active: f => f.mode !== "any",
+      test: (e, P, f) => f.mode === "any" || (f.mode === "yes" ? !!e[P.field] : !e[P.field]),
+      sortVal: (e, P) => e[P.field] ? 0 : "",
+      search: () => "",
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
+      sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = [["yes", "Shown"], ["no", "Not shown"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${f.mode === k}" data-act="lmode" data-val="${k}">${l}</button>`).join(""); },
+      cell: (e, P) => e[P.field] ? '<span class="pub-on">● On website</span>' : '<span style="color:var(--muted)">Not shown</span>',
+      editHtml: (P, e) => `<div class="pub-edit"><label class="pub-toggle" for="ed-${P.key}"><input type="checkbox" id="ed-${P.key}"${e && e[P.field] ? " checked" : ""}><span class="pub-switch" aria-hidden="true"></span><span>${P.label}</span></label><span class="pub-hint">Only entries with this on are included when you publish to the website.</span></div>`,
+      read: (P, out) => { out[P.field] = $("ed-" + P.key).checked; },
+    },
     tags: {
       empty: () => ({ values: [] }),
       active: f => f.values.length > 0,
@@ -1088,7 +1113,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
       return [...list.filter(isPinned), ...list.filter(e => !isPinned(e))];
     }
     const rowHtml = (e) => `<tr class="row${hasStatus(T) && e.status === "Done" ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0">${shown().map(c => { const P = PROP[c.key]; return `<td data-label="${esc(P.label)}">${K[P.kind].cell(e, P, T)}</td>`; }).join("")}</tr>`;
-    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : P.kind === "tasks" ? taskList(e).length > 0 : P.kind === "tags" ? tagsOf(e).length > 0 : false;
+    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : P.kind === "tasks" ? taskList(e).length > 0 : P.kind === "tags" ? tagsOf(e).length > 0 : P.kind === "check" ? !!e[P.field] : false;
     const cardCell = (e, P) => P.kind === "status" ? `<span class="pill ${statusOf(e.status).cls}">${esc(e.status || "Not started")}</span>` : K[P.kind].cell(e, P, T);
     const cardHtml = (e) => {
       const done = hasStatus(T) && e.status === "Done", vis = shown().map(c => c.key);
