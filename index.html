@@ -786,7 +786,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
       cell: (e, P, T) => {
         const r = fmtRange(e[P.start], e[P.end]);
         const now = focusState(e, P) === "now" && e.status !== "Done";
-        return `<span class="num">${esc(r) || "—"}</span>${now ? '<span class="now-tag">NOW</span>' : ""}`;
+        return `<span class="num">${esc(r) || "—"}</span>${now ? '<span class="now-tag" title="Today is within the focus dates">In focus</span>' : ""}`;
       },
       editHtml: (P, e) => `<span class="flabel">${P.label}</span><div class="drange"><input id="ed-${P.key}-s" type="date" aria-label="${P.label} start" value="${esc(e?.[P.start] || "")}"><input id="ed-${P.key}-e" type="date" aria-label="${P.label} end" value="${esc(e?.[P.end] || "")}"></div>`,
       read: (P, out) => {
