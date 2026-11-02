@@ -29,8 +29,8 @@ select.pill:disabled { cursor: default; opacity: 1; }
 </style>''', 1)
 
 # ---------- Hide the "Show on website" property on the public site ----------
-s = s.replace('''
-        { key: "public", kind: "check", label: "Show on website", field: "public", width: 150 },''', "")
+import re
+s = re.sub(r'\n        \{ key: "public", kind: "check", label: "Show on website"[^\n]*\},', "", s)
 
 # ---------- Banner ----------
 r('<div class="notice-wrap"><div class="notice" id="notice" hidden></div></div>',
