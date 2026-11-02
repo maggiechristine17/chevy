@@ -6,47 +6,38 @@
 <title>Chevy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
-/* Layout: slim app bar with top-level tabs; tool panels (search & sort, columns) are tinted, compact and hidden until opened; the list is a plain white card. */
+/* Layout: slim app bar with top-level tabs; tool panels are forest-tinted and hidden until opened; the list sits on near-black cards. One dark theme: black base, forest green surfaces, lime accents. */
 :root {
-  --bg: #f4f5f8;
-  --surface: #ffffff;
-  --ink: #1b2130;
-  --muted: #5d6578;
-  --line: #dde1ea;
-  --accent: #2346b8;
-  --accent-soft: #e6ebfb;
-  --panel: #e9eef9;
-  --panel-line: #c7d2ef;
-  --panel-input: #f7f9fe;
-  --good: #1f8a4c;
-  --good-soft: #e3f4ea;
-  --warn: #a8660b;
-  --warn-soft: #fbf0dc;
-  --hold: #7a5aa6;
-  --hold-soft: #efe9f8;
-  --idle-soft: #eceef3;
-  --graph-bg: #fbfbfd;
-  --page: #0f8b8d;
+  --bg: #0b0d0b;
+  --surface: #131713;
+  --ink: #e8eee4;
+  --muted: #93a08f;
+  --line: #252c24;
+  --accent: #b5e655;
+  --on-accent: #0b0d0b;
+  --accent-soft: #1f2b14;
+  --forest: #2f6b3f;
+  --panel: #102016;
+  --panel-line: #29503a;
+  --panel-input: #0c170f;
+  --good: #5ccf83;
+  --good-soft: #15291c;
+  --plan: #7cc4e8;
+  --plan-soft: #142531;
+  --warn: #e6b04f;
+  --warn-soft: #2c2312;
+  --hold: #b69be6;
+  --hold-soft: #251f33;
+  --idle-soft: #1f241e;
+  --graph-bg: #090b09;
+  --page: #b5e655;
+  --area: #f2a7c3;
+  --danger: #ff8a7a;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #11141c; --surface: #191d28; --ink: #e8eaf1; --muted: #9aa2b5; --line: #2b3142;
-    --accent: #8aa4ff; --accent-soft: #232c4a; --panel: #1b2235; --panel-line: #33406a; --panel-input: #141a2a;
-    --good: #5fcf8e; --good-soft: #1a3326;
-    --warn: #e6ad55; --warn-soft: #3a2d17; --hold: #b99ae6; --hold-soft: #2e2540; --idle-soft: #252a37; --graph-bg: #0e1118; --page: #4fd1c5;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #11141c; --surface: #191d28; --ink: #e8eaf1; --muted: #9aa2b5; --line: #2b3142;
-  --accent: #8aa4ff; --accent-soft: #232c4a; --panel: #1b2235; --panel-line: #33406a; --panel-input: #141a2a;
-  --good: #5fcf8e; --good-soft: #1a3326;
-  --warn: #e6ad55; --warn-soft: #3a2d17; --hold: #b99ae6; --hold-soft: #2e2540; --idle-soft: #252a37; --graph-bg: #0e1118; --page: #4fd1c5;
+  --font-sub: "Instrument Serif", Georgia, "Times New Roman", serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -55,7 +46,7 @@ body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body)
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.appbar { background: var(--surface); border-bottom: 1px solid var(--line); padding: 0 20px; display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
+.appbar { background: var(--surface); border-bottom: 1px solid var(--forest); padding: 0 20px; display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
 .brand { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; padding: 14px 0 12px; }
 .tabs { display: flex; gap: 4px; }
 .tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 14px 10px 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
@@ -67,10 +58,9 @@ h1 { font-family: var(--font-display); font-size: 28px; margin: 0; text-wrap: ba
 .count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 500; }
 .btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-:root[data-theme="dark"] .btn.primary { color: #0f1424; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0f1424; } }
-.btn.danger { color: #c0392b; }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { border-color: var(--ink); }
+.btn.danger { color: var(--danger); }
 .btn.ghost { border-color: transparent; background: none; color: var(--muted); }
 .head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .btn.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 7px 12px; }
@@ -120,7 +110,7 @@ h1 { font-family: var(--font-display); font-size: 28px; margin: 0; text-wrap: ba
 .hint { color: var(--muted); font-size: 12px; }
 
 /* Table (the list itself) */
-.table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 2px rgba(20,30,60,.04); }
+.table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
 table { border-collapse: collapse; table-layout: fixed; }
 th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; }
 tbody tr:last-child td { border-bottom: 0; }
@@ -144,7 +134,7 @@ tbody tr.row:hover td { background: var(--bg); }
 tr.group td { background: var(--bg); font-size: 13px; font-weight: 600; color: var(--muted); padding: 7px 14px; }
 .pill { border: 0; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 600; cursor: pointer; appearance: none; -webkit-appearance: none; max-width: 100%; }
 .s-notstarted { background: var(--idle-soft); color: var(--muted); }
-.s-planning { background: var(--accent-soft); color: var(--accent); }
+.s-planning { background: var(--plan-soft); color: var(--plan); }
 .s-active { background: var(--warn-soft); color: var(--warn); }
 .s-onhold { background: var(--hold-soft); color: var(--hold); }
 .s-done { background: var(--good-soft); color: var(--good); }
@@ -177,7 +167,7 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 .ghint { color: var(--muted); font-size: 13px; }
 
 /* Dialog */
-.overlay { position: fixed; inset: 0; background: rgba(10, 14, 25, 0.45); display: grid; place-items: center; padding: 16px; z-index: 10; }
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: grid; place-items: center; padding: 16px; z-index: 10; }
 .overlay[hidden] { display: none; }
 .dialog { background: var(--surface); border-radius: 14px; width: min(780px, 100%); padding: 22px 24px; display: grid; gap: 16px; align-content: start; box-shadow: 0 20px 50px rgba(0,0,0,0.25); max-height: 100%; overflow-y: auto; }
 .dialog h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
@@ -186,7 +176,7 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 .dialog .drange { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .dialog-actions { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
 .dialog-actions .right { display: flex; gap: 8px; margin-left: auto; }
-.err { color: #c0392b; font-size: 13px; }
+.err { color: var(--danger); font-size: 13px; }
 
 
 @media (max-width: 600px) {
@@ -206,7 +196,7 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 #views main[hidden] { display: none; }
 .tdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; background: var(--muted); }
 .tdot.t-pages { border-radius: 2px; background: var(--page); }
-.tdot.t-projects { background: var(--accent); }
+.tdot.t-projects { background: var(--good); }
 .graph-legend i.sq { border-radius: 2px; }
 .ed-fields { display: grid; gap: 14px; }
 
@@ -272,8 +262,8 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 .g-group { display: grid; gap: 8px; }
 .g-group h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(var(--card-w, 240px), 100%), 1fr)); gap: 14px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(20,30,60,.05); }
-.card:hover { box-shadow: 0 4px 14px rgba(20,30,60,.12); border-color: var(--panel-line); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.45); border-color: var(--panel-line); }
 .card-cover { aspect-ratio: 16 / 10; background: var(--panel); display: grid; place-items: center; overflow: hidden; border-bottom: 1px solid var(--line); }
 .card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-initial { font-family: var(--font-display); font-size: 34px; font-weight: 700; color: var(--panel-line); }
@@ -293,12 +283,97 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 .cover-edit { display: grid; gap: 8px; }
 .cover-prev { border-radius: 10px; overflow: hidden; background: var(--panel); aspect-ratio: 16 / 5; display: grid; place-items: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--panel-line); }
 .cover-prev.has { border: 0; }
+.cover-prev:not(.has) { aspect-ratio: auto; padding: 12px; }
 .cover-prev img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cover-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .cover-btns .btn { padding: 4px 12px; font-size: 13px; cursor: pointer; }
 .ed-fields .f:has(.cover-edit) { grid-column: 1 / -1; order: -1; }
 .dialog.ro .cover-btns { display: none !important; }
 .dialog.ro .cover-prev:not(.has) { display: none; }
+
+/* Title + subtitle on one line: bold title, lighter serif subtitle */
+.t-main { font-weight: 600; }
+.t-sub { font-family: var(--font-sub); font-style: normal; font-weight: 400; font-size: 1.1em; color: var(--muted); margin-left: .35em; }
+td .t-sub:only-child, .card-prop .t-sub { margin-left: 0; }
+.done .t-main, .card.done .t-main { text-decoration: line-through; color: var(--muted); font-weight: 500; }
+.done .title-text, .card.done .title-text { text-decoration: none !important; }
+.ed-fields .f:has(#ed-subtitle) { grid-column: 1 / -1; margin-top: -6px; }
+.dialog #ed-subtitle { font-family: var(--font-sub); font-style: normal; font-size: 19px; padding: 6px 10px; }
+
+/* Feed: one centered column of posts showing the full notes */
+.feed { display: grid; gap: 22px; max-width: 700px; margin: 0 auto; width: 100%; }
+.feed[hidden] { display: none; }
+.feed .g-group { gap: 14px; }
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.post-cover { aspect-ratio: 16 / 7; background: var(--panel); border-bottom: 1px solid var(--line); }
+.post-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-inner { padding: 16px 20px 18px; display: grid; gap: 10px; }
+.post-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.post-meta .tdot { margin-right: 0; }
+.post-title { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; color: var(--ink); font-family: var(--font-display); font-size: 21px; line-height: 1.3; }
+.post-title .t-main { font-weight: 700; }
+.post-title .t-sub { font-family: var(--font-sub); font-size: 21px; }
+.post-title:hover .t-main { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.post.done .post-title .t-main { text-decoration: line-through; color: var(--muted); }
+.post-props { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; color: var(--muted); }
+.post-props .lchips { flex-wrap: wrap; }
+.post .pill { cursor: default; font-size: 12px; padding: 2px 9px; }
+.post-body { border-top: 1px solid var(--line); padding-top: 12px; }
+.post-body.md { min-height: 0; cursor: auto; }
+.post-body .placeholder { margin: 0; font-size: 14px; }
+
+/* Areas in lists and the graph */
+.tdot.t-areas { border-radius: 1px; transform: rotate(45deg) scale(.85); background: var(--area); }
+/* Tasks */
+.tasks-edit { display: grid; gap: 6px; }
+.ed-fields .f:has(.tasks-edit) { grid-column: 1 / -1; }
+.tasklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.task { display: flex; align-items: center; gap: 10px; padding: 5px 4px; border-radius: 6px; }
+.task:hover { background: var(--bg); }
+.task-none { color: var(--muted); font-size: 13px; padding: 2px 0; }
+.tcheck { position: relative; display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; cursor: pointer; }
+.tcheck input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; width: 100% !important; }
+.tbox { width: 18px; height: 18px; border: 2px solid var(--muted); border-radius: 5px; display: grid; place-items: center; }
+.tcheck input:checked + .tbox { background: var(--accent); border-color: var(--accent); }
+.tcheck input:checked + .tbox::after { content: ""; width: 5px; height: 9px; border: solid var(--on-accent); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+.tcheck input:focus-visible + .tbox { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tcheck input:disabled { cursor: default; }
+.ttext { flex: 1; min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+input.ttext { background: none !important; border: 0 !important; padding: 2px 0 !important; color: var(--ink); }
+input.ttext:focus { outline: none; border-bottom: 1px solid var(--accent) !important; }
+.task.is-done .ttext { text-decoration: line-through; color: var(--muted); }
+.tdate { font-size: 12px; color: var(--good); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tdel { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 17px; line-height: 1; padding: 0 4px; opacity: .6; }
+.tdel:hover { opacity: 1; color: var(--danger); }
+.task-add { display: flex; gap: 8px; }
+.task-add input { flex: 1; }
+.task-add .btn { padding: 6px 14px; }
+.tprog { display: inline-flex; align-items: center; gap: 8px; }
+.tbar { width: 56px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; display: inline-block; }
+.tbar i { display: block; height: 100%; background: var(--accent); }
+.post-tasks { border-top: 1px solid var(--line); padding-top: 8px; }
+
+/* Tags */
+.tags { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+td .tags { flex-wrap: nowrap; overflow: hidden; }
+.tag, .tag-toggle { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+.tag .pin, .tag-toggle .pin, .pinned .pin { width: 11px; height: 11px; flex: none; }
+.tag-now { background: var(--accent); color: var(--on-accent); }
+.tag-c0 { background: var(--plan-soft); color: var(--plan); }
+.tag-c1 { background: var(--warn-soft); color: var(--warn); }
+.tag-c2 { background: var(--hold-soft); color: var(--hold); }
+.tag-c3 { background: var(--good-soft); color: var(--good); }
+.tag-c4 { background: #2e1a24; color: var(--area); }
+.tags-edit { display: grid; gap: 8px; }
+.ed-fields .f:has(.tags-edit) { grid-column: 1 / -1; }
+.tag-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-toggle { cursor: pointer; padding: 4px 12px; font-size: 13px; }
+.tag-toggle[aria-pressed="false"] { background: none; color: var(--muted); border-color: var(--line); font-weight: 500; }
+.tag-toggle[aria-pressed="false"] .tag-hint { display: none; }
+.tag-toggle:disabled { cursor: default; }
+.tag-hint { font-weight: 400; opacity: .75; }
+.pinned { color: var(--accent); display: inline-flex; flex: none; }
+.pinned .pin { width: 13px; height: 13px; }
 
 /* Public site: published entries are read-only; visitor entries are a sandbox */
 .site-banner { max-width: 1120px; margin: 0 auto; padding: 14px 20px 0; }
@@ -314,9 +389,7 @@ td .lchips { flex-wrap: nowrap; overflow: hidden; }
 select.pill:disabled { cursor: default; opacity: 1; }
 
 .site-banner .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.btn.small-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-:root[data-theme="dark"] .btn.small-primary { color: #0f1424; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.small-primary { color: #0f1424; } }
+.btn.small-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
 .send-list { display: grid; gap: 4px; max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 .dialog .send-list input { width: auto; flex: none; padding: 0; }
 .send-list label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 2px 0; }
@@ -351,7 +424,8 @@ select.pill:disabled { cursor: default; opacity: 1; }
     <div class="panel-head"><span class="panel-name">Display</span><button class="x" type="button" data-close="graphPanel" aria-label="Close display options">×</button></div>
     <div>
       <label class="switch"><input type="checkbox" id="gProjects" checked> Projects</label>
-      <label class="switch"><input type="checkbox" id="gPages" checked> Pages</label>
+      <label class="switch"><input type="checkbox" id="gAreas" checked> Areas</label>
+      <label class="switch"><input type="checkbox" id="gPages" checked> Resources</label>
       <label class="switch"><input type="checkbox" id="gOrphans" checked> Show unlinked items</label>
       <label class="switch"><input type="checkbox" id="gDone" checked> Show done projects</label>
       <label class="switch"><input type="checkbox" id="gLabels" checked> Always show names</label>
@@ -362,7 +436,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
     <canvas id="graph" aria-label="Graph of linked projects and pages"></canvas>
     <div class="graph-empty" id="graphEmpty" hidden></div>
   </div>
-  <div class="ghint">Drag the background to pan, pinch or scroll to zoom, drag a shape to move it, and tap one to open it. Circles are projects; squares are pages.</div>
+  <div class="ghint">Drag the background to pan, pinch or scroll to zoom, drag a shape to move it, and tap one to open it. Circles are projects, diamonds are areas, and squares are resources.</div>
 </main>
 
 <div class="overlay" id="overlay" hidden>
@@ -378,7 +452,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
       <div class="md" id="bodyView" tabindex="0"></div>
       <div class="body-edit" id="bodyEditWrap" hidden>
         <div class="suggest" id="suggest" role="listbox" hidden></div>
-        <textarea id="bodyEdit" aria-label="Notes in Markdown" placeholder="Write in Markdown. Type [[ to link to a project or page."></textarea>
+        <textarea id="bodyEdit" aria-label="Notes in Markdown" placeholder="Write in Markdown. Type [[ to link to a project, area or resource."></textarea>
       </div>
       <div class="md-hint">Markdown: <code># Heading</code> <code>**bold**</code> <code>- list</code> <code>- [ ] task</code> · Link with <code>[[Title]]</code></div>
     </section>
@@ -466,7 +540,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
   // ---------- Statuses ----------
   const STATUSES = [
     { v: "Not started", cls: "s-notstarted", color: "--muted" },
-    { v: "Planning", cls: "s-planning", color: "--accent" },
+    { v: "Planning", cls: "s-planning", color: "--plan" },
     { v: "Active", cls: "s-active", color: "--warn" },
     { v: "On hold", cls: "s-onhold", color: "--hold" },
     { v: "Done", cls: "s-done", color: "--good" },
@@ -489,10 +563,13 @@ select.pill:disabled { cursor: default; opacity: 1; }
       key: "projects", label: "Projects", singular: "project", idPrefix: "p", settingsDoc: "settings/projectsView",
       defaultSort: { key: "created", dir: "desc" },
       props: [
-        { key: "title", kind: "title", label: "Title", field: "title", width: 340 },
+        { key: "title", kind: "title", label: "Title", field: "title", width: 380 },
+        { key: "subtitle", kind: "text", label: "Subtitle", field: "subtitle", width: 220, hidden: true },
+        { key: "tags", kind: "tags", label: "Tags", field: "tags", width: 190 },
         { key: "created", kind: "date", label: "Created date", field: "created", width: 150 },
         { key: "status", kind: "status", label: "Status", field: "status", width: 150 },
         { key: "focus", kind: "daterange", label: "Focus dates", start: "focusStart", end: "focusEnd", width: 250 },
+        { key: "tasks", kind: "tasks", label: "Tasks", field: "tasks", width: 150 },
         { key: "links", kind: "links", label: "Links", width: 240 },
         { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
       ],
@@ -504,10 +581,29 @@ select.pill:disabled { cursor: default; opacity: 1; }
       ],
     },
     {
-      key: "pages", label: "Pages", singular: "page", idPrefix: "g", settingsDoc: "settings/pagesView",
+      key: "areas", label: "Areas", singular: "area", idPrefix: "a", settingsDoc: "settings/areasView",
       defaultSort: { key: "createdTime", dir: "desc" },
       props: [
-        { key: "title", kind: "title", label: "Title", field: "title", width: 360 },
+        { key: "title", kind: "title", label: "Title", field: "title", width: 400 },
+        { key: "subtitle", kind: "text", label: "Subtitle", field: "subtitle", width: 220, hidden: true },
+        { key: "tags", kind: "tags", label: "Tags", field: "tags", width: 190 },
+        { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
+        { key: "links", kind: "links", label: "Links", width: 300 },
+        { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
+      ],
+      groups: [
+        { key: "none", label: "None" },
+        { key: "createdMonth", label: "Created month", fn: e => monthKey(e.createdTime), sort: "monthDesc" },
+      ],
+    },
+    {
+      // Shown as "Resources"; saved under "pages" so existing entries carry over
+      key: "pages", label: "Resources", singular: "resource", idPrefix: "g", settingsDoc: "settings/pagesView",
+      defaultSort: { key: "createdTime", dir: "desc" },
+      props: [
+        { key: "title", kind: "title", label: "Title", field: "title", width: 400 },
+        { key: "subtitle", kind: "text", label: "Subtitle", field: "subtitle", width: 220, hidden: true },
+        { key: "tags", kind: "tags", label: "Tags", field: "tags", width: 190 },
         { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
         { key: "links", kind: "links", label: "Links", width: 300 },
         { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
@@ -523,8 +619,8 @@ select.pill:disabled { cursor: default; opacity: 1; }
   const hasStatus = (T) => T.props.some(p => p.kind === "status");
 
   // ---------- Data ----------
-  const data = { projects: [], pages: [] };
-  const loaded = { projects: false, pages: false };
+  const data = Object.fromEntries(TYPES.map(T => [T.key, []]));
+  const loaded = Object.fromEntries(TYPES.map(T => [T.key, false]));
   const cols = {}, settingsRefs = {};
   let db = null, local = false;
   let byId = new Map(), adj = new Map();
@@ -567,6 +663,48 @@ select.pill:disabled { cursor: default; opacity: 1; }
     await db.collection(type).doc(id).delete();
   }
 
+  // ---------- Tags ("Now" is always first and pins an entry to the top) ----------
+  const NOW = "Now";
+  const tagsOf = (e) => Array.isArray(e && e.tags) ? e.tags.filter(t => typeof t === "string" && t.trim()) : [];
+  const isPinned = (e) => tagsOf(e).some(t => t.toLowerCase() === "now");
+  function allTags() {
+    const set = new Map();
+    TYPES.forEach(T => data[T.key].forEach(e => tagsOf(e).forEach(t => { const k = t.toLowerCase(); if (k !== "now" && !set.has(k)) set.set(k, t); })));
+    return [NOW, ...[...set.values()].sort((a, b) => a.localeCompare(b))];
+  }
+  const tagColor = (t) => { if (t.toLowerCase() === "now") return "tag-now"; let h = 0; for (const ch of t.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return "tag-c" + (h % 5); };
+  const PIN_SVG = '<svg class="pin" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 1.5l4 4-2 1-2.5 2.5.5 3-1.5 1.5-2.5-2.5L3 14.5 1.5 13l3.5-3.5L2.5 7 4 5.5l3 .5L9.5 3.5z" fill="currentColor"/></svg>';
+  const tagChip = (t) => `<span class="tag ${tagColor(t)}">${t.toLowerCase() === "now" ? PIN_SVG : ""}${esc(t)}</span>`;
+
+  // ---------- Tasks ----------
+  const taskList = (e) => Array.isArray(e && e.tasks) ? e.tasks : [];
+  const taskId = () => "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  function doneLabel(t) {
+    if (!t.done || !t.doneAt) return "";
+    const d = t.doneAt.slice(0, 10), y = new Date(); y.setDate(y.getDate() - 1);
+    const day = d === today() ? "Today" : d === iso(y) ? "Yesterday" : fmt(d, d.slice(0, 4) !== String(new Date().getFullYear()));
+    return day + (fmtTime(t.doneAt) ? ", " + fmtTime(t.doneAt) : "");
+  }
+  // One checklist row. readOnly hides editing; entryKey says which entry a tick belongs to.
+  function taskRowHtml(t, opts = {}) {
+    const lbl = doneLabel(t);
+    return `<li class="task${t.done ? " is-done" : ""}">
+      <label class="tcheck"><input type="checkbox" data-task="${esc(t.id)}"${opts.entry ? ` data-entry="${esc(opts.entry)}" data-etype="${esc(opts.type)}"` : ""}${t.done ? " checked" : ""}${opts.disabled ? " disabled" : ""}><span class="tbox" aria-hidden="true"></span></label>
+      ${opts.editable ? `<input class="ttext" type="text" value="${esc(t.text)}" data-ttext="${esc(t.id)}" aria-label="Task">` : `<span class="ttext">${esc(t.text)}</span>`}
+      ${lbl ? `<span class="tdate" title="Checked off ${esc(fmt(t.doneAt) + (fmtTime(t.doneAt) ? ", " + fmtTime(t.doneAt) : ""))}">✓ ${esc(lbl)}</span>` : ""}
+      ${opts.editable ? `<button type="button" class="tdel" data-tdel="${esc(t.id)}" aria-label="Delete task">×</button>` : ""}
+    </li>`;
+  }
+  // Ticking a box saves right away, stamped with the date and time.
+  async function toggleTask(type, id, tid, checked) {
+    const e = data[type].find(x => x.id === id); if (!e || e._pub) return;
+    const stamp = (t) => t.id === tid ? { ...t, done: checked, doneAt: checked ? nowLocal() : "" } : t;
+    const tasks = taskList(e).map(stamp);
+    if (editing && editing.id === id) { draft.tasks = draft.tasks.map(stamp); renderTasksEditor(); }
+    try { await saveEntry(type, { ...e, tasks, updatedAt: new Date().toISOString() }); }
+    catch (err) { notice(err.message); renderAll(); }
+  }
+
   // ---------- Property kinds ----------
   const K = {
     title: {
@@ -579,10 +717,22 @@ select.pill:disabled { cursor: default; opacity: 1; }
       sync: (box, f) => { const i = box.querySelector('[data-part="q"]'); if (document.activeElement !== i) i.value = f.q; },
       cell: (e, P, T) => {
         const done = hasStatus(T) && e.status === "Done";
-        return `<span class="title-cell">${done ? '<span class="check" aria-label="Done">✓</span>' : ""}<span class="title-text">${esc(e.title || "Untitled")}</span>${e._pub ? "" : '<span class="mine-tag">Yours</span>'}${!e._pub && e.sentAt ? '<span class="sent-tag">Sent</span>' : ""}</span>`;
+        return `<span class="title-cell">${isPinned(e) ? `<span class="pinned" title="Pinned: tagged Now">${PIN_SVG}</span>` : ""}${done ? '<span class="check" aria-label="Done">✓</span>' : ""}<span class="title-text"><span class="t-main">${esc(e.title || "Untitled")}</span>${e.subtitle ? `<span class="t-sub">${esc(e.subtitle)}</span>` : ""}</span>${e._pub ? "" : '<span class="mine-tag">Yours</span>'}${!e._pub && e.sentAt ? '<span class="sent-tag">Sent</span>' : ""}</span>`;
       },
       editHtml: (P, e) => `<label for="ed-${P.key}">${P.label}</label><input id="ed-${P.key}" type="text" autocomplete="off" value="${esc(e?.title || "")}">`,
       read: (P, out) => { out.title = $("ed-" + P.key).value.trim(); if (!out.title) return "Give it a title."; },
+    },
+    text: {
+      empty: () => ({ q: "" }),
+      active: f => !!f.q.trim(),
+      test: (e, P, f) => !f.q.trim() || (e[P.field] || "").toLowerCase().includes(f.q.trim().toLowerCase()),
+      sortVal: (e, P) => (e[P.field] || "").toLowerCase(),
+      search: (e, P) => e[P.field] || "",
+      filterHtml: (P, id) => `<label for="${id}">${P.label}</label><input id="${id}" type="text" placeholder="Contains…" data-part="q">`,
+      sync: (box, f) => { const i = box.querySelector('[data-part="q"]'); if (document.activeElement !== i) i.value = f.q; },
+      cell: (e, P) => e[P.field] ? `<span class="t-sub">${esc(e[P.field])}</span>` : '<span style="color:var(--muted)">—</span>',
+      editHtml: (P, e) => `<label for="ed-${P.key}">${P.label}</label><input id="ed-${P.key}" type="text" autocomplete="off" placeholder="Optional" value="${esc(e?.[P.field] || "")}">`,
+      read: (P, out) => { out[P.field] = $("ed-" + P.key).value.trim(); },
     },
     date: {
       empty: () => ({ from: "", to: "" }),
@@ -657,6 +807,40 @@ select.pill:disabled { cursor: default; opacity: 1; }
       editHtml: (P) => `<div class="cover-edit"><span class="flabel">${P.label}</span><div class="cover-prev" id="ed-cover-prev"></div><div class="cover-btns"><label class="btn" for="ed-cover-file" id="ed-cover-add">Add picture</label><input type="file" accept="image/*" id="ed-cover-file" hidden><button type="button" class="btn" id="ed-cover-rm">Remove</button></div></div>`,
       read: (P, out) => { out[P.field] = draft.cover || ""; },
     },
+    tags: {
+      empty: () => ({ values: [] }),
+      active: f => f.values.length > 0,
+      test: (e, P, f) => !f.values.length || tagsOf(e).some(t => f.values.includes(t.toLowerCase())),
+      sortVal: e => { const t = tagsOf(e); if (!t.length) return ""; return isPinned(e) ? "0" : "1" + [...t].sort((a, b) => a.localeCompare(b))[0].toLowerCase(); },
+      search: e => tagsOf(e).join(" "),
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
+      sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = allTags().map(t => `<button type="button" class="chip" aria-pressed="${f.values.includes(t.toLowerCase())}" data-act="tag" data-val="${esc(t.toLowerCase())}">${esc(t)}</button>`).join(""); },
+      cell: (e) => { const t = tagsOf(e); return t.length ? `<span class="tags">${[...t].sort((a, b) => (b.toLowerCase() === "now") - (a.toLowerCase() === "now")).map(tagChip).join("")}</span>` : '<span style="color:var(--muted)">—</span>'; },
+      editHtml: (P) => `<div class="tags-edit"><span class="flabel">${P.label}</span><div class="tag-pick" id="ed-tags"></div><div class="task-add"><input id="ed-tag-new" type="text" placeholder="New tag…" autocomplete="off"><button type="button" class="btn" id="ed-tag-add">Add tag</button></div></div>`,
+      read: (P, out) => { out.tags = [...draft.tags]; },
+    },
+    tasks: {
+      empty: () => ({ mode: "any" }),
+      active: f => f.mode !== "any",
+      test: (e, P, f) => {
+        const t = taskList(e), open = t.filter(x => !x.done).length;
+        if (f.mode === "open") return open > 0;
+        if (f.mode === "alldone") return t.length > 0 && open === 0;
+        if (f.mode === "none") return t.length === 0;
+        return true;
+      },
+      sortVal: e => { const t = taskList(e); return t.length ? t.filter(x => x.done).length / t.length : ""; },
+      search: e => taskList(e).map(x => x.text).join(" "),
+      filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
+      sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = [["open", "Has open tasks"], ["alldone", "All done"], ["none", "No tasks"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${f.mode === k}" data-act="lmode" data-val="${k}">${l}</button>`).join(""); },
+      cell: (e) => {
+        const t = taskList(e); if (!t.length) return '<span style="color:var(--muted)">—</span>';
+        const d = t.filter(x => x.done).length;
+        return `<span class="tprog" title="${d} of ${t.length} tasks done"><span class="tbar"><i style="width:${Math.round(d / t.length * 100)}%"></i></span><span class="num">${d}/${t.length}</span></span>`;
+      },
+      editHtml: (P) => `<div class="tasks-edit"><span class="flabel">${P.label}</span><ul class="tasklist" id="ed-tasks"></ul><div class="task-add"><input id="ed-task-new" type="text" placeholder="Add a task…" autocomplete="off"><button type="button" class="btn" id="ed-task-add">Add</button></div></div>`,
+      read: (P, out) => { out.tasks = draft.tasks.map(t => ({ ...t })); },
+    },
     links: {
       empty: () => ({ to: "", mode: "any" }),
       active: f => !!f.to || f.mode !== "any",
@@ -701,7 +885,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
           <button class="btn primary" type="button" data-r="add">+ New ${T.singular}</button>
         </div>
       </div>
-      <div class="layout-tabs" role="tablist" aria-label="${T.label} views" data-r="layouts"><button type="button" role="tab" data-layout="table"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6.5h12M2 10h12M6 6.5V13"/></svg>Table</button><button type="button" role="tab" data-layout="gallery"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9.5" width="5" height="5" rx="1"/><rect x="9" y="9.5" width="5" height="5" rx="1"/></svg>Gallery</button></div>
+      <div class="layout-tabs" role="tablist" aria-label="${T.label} views" data-r="layouts"><button type="button" role="tab" data-layout="table"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6.5h12M2 10h12M6 6.5V13"/></svg>Table</button><button type="button" role="tab" data-layout="gallery"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9.5" width="5" height="5" rx="1"/><rect x="9" y="9.5" width="5" height="5" rx="1"/></svg>Gallery</button><button type="button" role="tab" data-layout="feed"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="2" width="10" height="5" rx="1"/><rect x="3" y="9" width="10" height="5" rx="1"/></svg>Feed</button></div>
       <section class="panel" data-r="ctl" aria-label="Search, sort and filter ${T.label}" hidden>
         <div class="panel-head"><span class="panel-name">Search &amp; sort</span><button class="x" type="button" data-r="ctlX" aria-label="Close search and sort">×</button></div>
         <input class="search" data-r="q" type="search" placeholder="Search ${T.label.toLowerCase()}…" aria-label="Search ${T.label.toLowerCase()}">
@@ -719,6 +903,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         <div><button class="btn ghost" type="button" data-r="resetCols" style="padding:2px 6px;font-size:12px">Reset columns</button></div>
       </section>
       <div class="gallery" data-r="gallery" hidden></div>
+      <div class="feed" data-r="feed" hidden></div>
       <div class="table-wrap" data-r="tableWrap"><table data-r="table"><colgroup data-r="colgroup"></colgroup><thead><tr data-r="head"></tr></thead><tbody data-r="rows"></tbody></table></div>`;
     $("views").appendChild(main);
     const R = (k) => main.querySelector(`[data-r="${k}"]`);
@@ -731,7 +916,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
     if (saved) {
       if (PROP[saved.sortKey]) { ui.sortKey = saved.sortKey; ui.sortDir = saved.sortDir === "asc" ? "asc" : "desc"; }
       if (T.groups.some(g => g.key === saved.group)) ui.group = saved.group;
-      if (["table", "gallery"].includes(saved.layout)) ui.layout = saved.layout;
+      if (["table", "gallery", "feed"].includes(saved.layout)) ui.layout = saved.layout;
       if (["s", "m", "l"].includes(saved.gsize)) ui.gsize = saved.gsize;
       if (saved.f) T.props.forEach(P => { if (saved.f[P.key]) ui.f[P.key] = { ...K[P.kind].empty(), ...saved.f[P.key] }; });
     }
@@ -792,6 +977,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
       else if (b.dataset.act === "none") f.none = !f.none;
       else if (b.dataset.act === "status") f.values = f.values.includes(v) ? f.values.filter(x => x !== v) : [...f.values, v];
       else if (b.dataset.act === "lmode") f.mode = f.mode === v ? "any" : v;
+      else if (b.dataset.act === "tag") f.values = f.values.includes(v) ? f.values.filter(x => x !== v) : [...f.values, v];
       saveUi(); render();
     });
 
@@ -899,15 +1085,15 @@ select.pill:disabled { cursor: default; opacity: 1; }
         if (va < vb) return -dir; if (va > vb) return dir;
         return (a.title || "").localeCompare(b.title || "");
       });
-      return list;
+      return [...list.filter(isPinned), ...list.filter(e => !isPinned(e))];
     }
     const rowHtml = (e) => `<tr class="row${hasStatus(T) && e.status === "Done" ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0">${shown().map(c => { const P = PROP[c.key]; return `<td data-label="${esc(P.label)}">${K[P.kind].cell(e, P, T)}</td>`; }).join("")}</tr>`;
-    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : false;
+    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : P.kind === "tasks" ? taskList(e).length > 0 : P.kind === "tags" ? tagsOf(e).length > 0 : false;
     const cardCell = (e, P) => P.kind === "status" ? `<span class="pill ${statusOf(e.status).cls}">${esc(e.status || "Not started")}</span>` : K[P.kind].cell(e, P, T);
     const cardHtml = (e) => {
       const done = hasStatus(T) && e.status === "Done", vis = shown().map(c => c.key);
       const initial = esc(((e.title || "?").trim()[0] || "?").toUpperCase());
-      const props = shown().map(c => PROP[c.key]).filter(P => P.kind !== "title" && P.kind !== "image" && hasVal(e, P));
+      const props = shown().map(c => PROP[c.key]).filter(P => P.kind !== "title" && P.kind !== "text" && P.kind !== "image" && hasVal(e, P));
       return `<article class="card${done ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0" aria-label="${esc(e.title || "Untitled")}">
         <div class="card-cover">${e.cover ? `<img src="${esc(e.cover)}" alt="" loading="lazy">` : `<span class="card-initial" aria-hidden="true">${initial}</span>`}</div>
         <div class="card-body"><div class="card-title">${K.title.cell(e, PROP.title, T)}</div>${props.map(P => `<div class="card-prop" title="${esc(P.label)}">${cardCell(e, P)}</div>`).join("")}</div>
@@ -935,12 +1121,43 @@ select.pill:disabled { cursor: default; opacity: 1; }
       if (!gk) { el.innerHTML = `<div class="g-grid">${list.map(cardHtml).join("")}</div>`; return; }
       el.innerHTML = gk.keys.map(k => `<section class="g-group"><h3>${esc(k)} · ${gk.groups.get(k).length}</h3><div class="g-grid">${gk.groups.get(k).map(cardHtml).join("")}</div></section>`).join("");
     }
+    const postDate = (e) => {
+      const P = T.props.find(x => x.kind === "date"); const v = P ? e[P.field] : "";
+      return v ? fmt(v) + (P.withTime && fmtTime(v) ? ", " + fmtTime(v) : "") : "";
+    };
+    const postHtml = (e) => {
+      const done = hasStatus(T) && e.status === "Done";
+      const props = shown().map(c => PROP[c.key]).filter(P => !["title", "text", "image", "date", "tasks"].includes(P.kind) && hasVal(e, P));
+      const showTasks = shown().some(c => PROP[c.key].kind === "tasks") && taskList(e).length;
+      return `<article class="post${done ? " done" : ""}" data-id="${esc(e.id)}">
+        ${e.cover ? `<div class="post-cover"><img src="${esc(e.cover)}" alt="" loading="lazy"></div>` : ""}
+        <div class="post-inner">
+          <div class="post-meta"><i class="tdot t-${T.key}" aria-hidden="true"></i>${esc(T.singular[0].toUpperCase() + T.singular.slice(1))}${postDate(e) ? ` · ${esc(postDate(e))}` : ""}</div>
+          <button type="button" class="post-title" data-post="${esc(e.id)}">${isPinned(e) ? `<span class="pinned" title="Pinned: tagged Now">${PIN_SVG}</span> ` : ""}${done ? '<span class="check" aria-label="Done">✓</span> ' : ""}<span class="t-main">${esc(e.title || "Untitled")}</span>${e.subtitle ? `<span class="t-sub">${esc(e.subtitle)}</span>` : ""}</button>
+          ${props.length ? `<div class="post-props">${props.map(P => `<span title="${esc(P.label)}">${cardCell(e, P)}</span>`).join("")}</div>` : ""}
+          ${showTasks ? `<ul class="tasklist post-tasks">${taskList(e).map(t => taskRowHtml(t, { entry: e.id, type: T.key, disabled: !!e._pub })).join("")}</ul>` : ""}
+          <div class="post-body md">${(e.body || "").trim() ? renderMd(e.body) : '<p class="placeholder">No notes yet.</p>'}</div>
+        </div>
+      </article>`;
+    };
+    function renderFeed(list, total) {
+      const el = R("feed");
+      if (!total) { el.innerHTML = loaded[T.key] ? `<div class="empty"><strong>No ${T.label.toLowerCase()} yet</strong>Add your first one with “+ New ${T.singular}”.</div>` : ""; return; }
+      if (!list.length) { el.innerHTML = `<div class="empty"><strong>Nothing matches</strong>Try clearing the search or filters.</div>`; return; }
+      const gk = groupedKeys(list);
+      el.innerHTML = gk
+        ? gk.keys.map(k => `<section class="g-group"><h3>${esc(k)} · ${gk.groups.get(k).length}</h3>${gk.groups.get(k).map(postHtml).join("")}</section>`).join("")
+        : list.map(postHtml).join("");
+      el.querySelectorAll('.post-body a[href]:not(.wikilink)').forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
+      el.querySelectorAll('.post-body input[type="checkbox"]').forEach(c => { c.disabled = true; });
+    }
     function renderRows() {
       const list = visible(), total = data[T.key].length, span = shown().length, noun = (n) => n === 1 ? T.singular : T.label.toLowerCase();
       R("count").textContent = !loaded[T.key] && !total ? "Loading…" : (list.length === total ? `${total} ${noun(total)}` : `Showing ${list.length} of ${total} ${noun(total)}`);
-      const gallery = ui.layout === "gallery";
-      R("gallery").hidden = !gallery; R("tableWrap").hidden = gallery;
+      const gallery = ui.layout === "gallery", feed = ui.layout === "feed";
+      R("gallery").hidden = !gallery; R("feed").hidden = !feed; R("tableWrap").hidden = gallery || feed;
       if (gallery) { renderGallery(list, total); return; }
+      if (feed) { renderFeed(list, total); return; }
       const tb = R("rows");
       if (!total) { tb.innerHTML = loaded[T.key] ? `<tr><td colspan="${span}" class="empty"><strong>No ${T.label.toLowerCase()} yet</strong>Add your first one with “+ New ${T.singular}”.</td></tr>` : ""; return; }
       if (!list.length) { tb.innerHTML = `<tr><td colspan="${span}" class="empty"><strong>Nothing matches</strong>Try clearing the search or filters.</td></tr>`; return; }
@@ -974,13 +1191,27 @@ select.pill:disabled { cursor: default; opacity: 1; }
       const c = e.target.closest(".card"); if (c) openEditor(T.key, c.dataset.id);
     });
     R("gallery").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches(".card")) openEditor(T.key, e.target.dataset.id); });
+    R("feed").addEventListener("change", e => {
+      const c = e.target.closest("input[data-task][data-entry]"); if (c) toggleTask(c.dataset.etype, c.dataset.entry, c.dataset.task, c.checked);
+    });
+    R("feed").addEventListener("click", e => {
+      const wl = e.target.closest("a.wikilink");
+      if (wl) {
+        e.preventDefault();
+        const hit = findByTitle(wl.dataset.wl);
+        if (hit) openEditor(hit.type, hit.e.id); else openEditor("pages", null, { title: wl.dataset.wl.trim() });
+        return;
+      }
+      const lk = e.target.closest("[data-open]"); if (lk) { const t = byId.get(lk.dataset.open); if (t) openEditor(t.type, t.e.id); return; }
+      const t = e.target.closest("[data-post]"); if (t) openEditor(T.key, t.dataset.post);
+    });
     R("layouts").addEventListener("click", e => { const b = e.target.closest("[data-layout]"); if (b) { ui.layout = b.dataset.layout; saveUi(); render(); } });
     R("gsize").addEventListener("click", e => { const b = e.target.closest("[data-gsize]"); if (b) { ui.gsize = b.dataset.gsize; saveUi(); render(); } });
     function renderLayout() {
-      const g = ui.layout === "gallery";
+      const g = ui.layout === "gallery", fd = ui.layout === "feed";
       R("layouts").querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.layout === ui.layout)));
-      R("colsLabel").textContent = R("colsName").textContent = g ? "Properties" : "Columns";
-      R("colsHint").textContent = g ? "Tick the properties to show on each card and use the arrows to reorder them. Cards always show the cover and title." : "Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.";
+      R("colsLabel").textContent = R("colsName").textContent = g || fd ? "Properties" : "Columns";
+      R("colsHint").textContent = fd ? "Tick the properties to show on each post and use the arrows to reorder them. Posts always show the cover, title, date and full notes." : g ? "Tick the properties to show on each card and use the arrows to reorder them. Cards always show the cover and title." : "Tick the columns to show and use the arrows to reorder them. On a computer you can also drag a column header to move it, or drag its right edge to resize it.";
       R("gsize").hidden = !g;
       R("gsize").innerHTML = `<span class="ctl-title">Card size</span><span class="chips">${[["s", "Small"], ["m", "Medium"], ["l", "Large"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${ui.gsize === k}" data-gsize="${k}">${l}</button>`).join("")}</span>`;
     }
@@ -991,7 +1222,36 @@ select.pill:disabled { cursor: default; opacity: 1; }
 
   // ---------- Editor ----------
   let editing = null, confirmDelete = false;
-  const draft = { links: [], cover: "" };
+  const draft = { links: [], cover: "", tasks: [], tags: [] };
+  function renderTagsEditor() {
+    const box = $("ed-tags"); if (!box) return;
+    const ro = !!(editing && editing.ro);
+    const lower = draft.tags.map(t => t.toLowerCase());
+    const opts = [...new Set([...allTags(), ...draft.tags].map(t => t))].filter((t, i, a) => a.findIndex(x => x.toLowerCase() === t.toLowerCase()) === i);
+    const list = ro ? opts.filter(t => lower.includes(t.toLowerCase())) : opts;
+    box.innerHTML = list.length ? list.map(t => {
+      const on = lower.includes(t.toLowerCase());
+      return `<button type="button" class="tag-toggle ${tagColor(t)}" aria-pressed="${on}" data-tagtoggle="${esc(t)}"${ro ? " disabled" : ""}>${t.toLowerCase() === "now" ? PIN_SVG : ""}${esc(t)}${t.toLowerCase() === "now" && !ro ? '<span class="tag-hint"> · pins to top</span>' : ""}</button>`;
+    }).join("") : '<span class="task-none">No tags.</span>';
+  }
+  function addDraftTag() {
+    const inp = $("ed-tag-new"); const t = inp.value.trim().replace(/\s+/g, " ").slice(0, 40); if (!t) return;
+    const tag = t.toLowerCase() === "now" ? NOW : t;
+    if (!draft.tags.some(x => x.toLowerCase() === tag.toLowerCase())) draft.tags.push(tag);
+    inp.value = ""; renderTagsEditor(); inp.focus();
+  }
+  function renderTasksEditor() {
+    const ul = $("ed-tasks"); if (!ul) return;
+    const ro = !!(editing && editing.ro);
+    ul.innerHTML = draft.tasks.length
+      ? draft.tasks.map(t => taskRowHtml(t, { editable: !ro, disabled: ro })).join("")
+      : `<li class="task-none">No tasks yet.</li>`;
+  }
+  function addDraftTask() {
+    const inp = $("ed-task-new"); const text = inp.value.trim(); if (!text) return;
+    draft.tasks.push({ id: taskId(), text, done: false, doneAt: "" });
+    inp.value = ""; renderTasksEditor(); inp.focus();
+  }
   function renderCoverEditor() {
     const prev = $("ed-cover-prev"); if (!prev) return;
     prev.classList.toggle("has", !!draft.cover);
@@ -1031,9 +1291,22 @@ select.pill:disabled { cursor: default; opacity: 1; }
       if (opts.length) any = true;
       return opts.length ? `<optgroup label="${T.label}">${opts.map(({ e }) => `<option value="${esc(e.id)}">${esc(e.title || "Untitled")}</option>`).join("")}</optgroup>` : "";
     }).join("");
-    sel.innerHTML = `<option value="">${any ? "+ Link a project or page…" : "Nothing else to link yet"}</option>` + groups;
+    sel.innerHTML = `<option value="">${any ? "+ Link a project, area or resource…" : "Nothing else to link yet"}</option>` + groups;
   }
+  $("edFields").addEventListener("keydown", e => { if (e.target.id === "ed-tag-new" && e.key === "Enter") { e.preventDefault(); addDraftTag(); } });
+  $("edFields").addEventListener("keydown", e => { if (e.target.id === "ed-task-new" && e.key === "Enter") { e.preventDefault(); addDraftTask(); } });
+  $("edFields").addEventListener("input", e => {
+    const tt = e.target.closest("[data-ttext]"); if (!tt) return;
+    const t = draft.tasks.find(x => x.id === tt.dataset.ttext); if (t) t.text = tt.value;
+  });
   $("edFields").addEventListener("change", async e => {
+    const tc = e.target.closest("input[data-task]");
+    if (tc) {
+      const exists = data[editing.type].some(x => x.id === editing.id);
+      if (exists && !editing.ro) { toggleTask(editing.type, editing.id, tc.dataset.task, tc.checked); }
+      else { draft.tasks = draft.tasks.map(t => t.id === tc.dataset.task ? { ...t, done: tc.checked, doneAt: tc.checked ? nowLocal() : "" } : t); renderTasksEditor(); }
+      return;
+    }
     if (e.target.id === "ed-addlink" && e.target.value) { draft.links.push(e.target.value); renderLinkEditor(); }
     if (e.target.id === "ed-cover-file" && e.target.files && e.target.files[0]) {
       $("ed-cover-add").textContent = "Loading…";
@@ -1044,6 +1317,15 @@ select.pill:disabled { cursor: default; opacity: 1; }
   });
   $("edFields").addEventListener("click", e => {
     if (e.target.id === "ed-cover-rm") { draft.cover = ""; renderCoverEditor(); return; }
+    if (e.target.id === "ed-task-add") { addDraftTask(); return; }
+    if (e.target.id === "ed-tag-add") { addDraftTag(); return; }
+    const tg = e.target.closest("[data-tagtoggle]");
+    if (tg) {
+      const t = tg.dataset.tagtoggle, k = t.toLowerCase();
+      draft.tags = draft.tags.some(x => x.toLowerCase() === k) ? draft.tags.filter(x => x.toLowerCase() !== k) : [...draft.tags, t];
+      renderTagsEditor(); return;
+    }
+    const td = e.target.closest("[data-tdel]"); if (td) { draft.tasks = draft.tasks.filter(t => t.id !== td.dataset.tdel); renderTasksEditor(); return; }
     const b = e.target.closest("[data-unlink]"); if (b) { draft.links = draft.links.filter(id => id !== b.dataset.unlink); renderLinkEditor(); return; }
     const g = e.target.closest("[data-goto]"); if (g) { const t = byId.get(g.dataset.goto); if (t) navigateTo(t.type, t.e.id); }
   });
@@ -1137,7 +1419,11 @@ select.pill:disabled { cursor: default; opacity: 1; }
     draft.links = e ? linksOf(e.id).map(x => x.e.id) : (opts.linkTo ? [opts.linkTo] : []);
     draft.body = e?.body || "";
     draft.cover = e?.cover || "";
+    draft.tasks = taskList(e).map(t => ({ ...t }));
+    draft.tags = [...tagsOf(e)];
     renderCoverEditor();
+    renderTasksEditor();
+    renderTagsEditor();
     bodyMode = draft.body.trim() ? "view" : (e ? "view" : "edit");
     renderLinkEditor(); renderBody();
     $("backBtn").hidden = !navStack.length;
@@ -1228,10 +1514,10 @@ select.pill:disabled { cursor: default; opacity: 1; }
   
   let settledFit = false, graphVisible = false, gNodes = [], gLinks = [], sim = null, hoverId = null, fitted = false;
   let transform = { x: 0, y: 0, k: 1 };
-  const gOpts = { projects: true, pages: true, orphans: true, done: true, labels: true };
+  const gOpts = { projects: true, areas: true, pages: true, orphans: true, done: true, labels: true };
   try { Object.assign(gOpts, JSON.parse(localStorage.getItem("chevy.graph.opts") || "{}")); } catch (e) {}
-  $("gProjects").checked = gOpts.projects; $("gPages").checked = gOpts.pages; $("gOrphans").checked = gOpts.orphans; $("gDone").checked = gOpts.done; $("gLabels").checked = gOpts.labels;
-  [["gProjects", "projects"], ["gPages", "pages"], ["gOrphans", "orphans"], ["gDone", "done"], ["gLabels", "labels"]].forEach(([id, k]) => $(id).addEventListener("change", e => {
+  $("gProjects").checked = gOpts.projects; $("gAreas").checked = gOpts.areas; $("gPages").checked = gOpts.pages; $("gOrphans").checked = gOpts.orphans; $("gDone").checked = gOpts.done; $("gLabels").checked = gOpts.labels;
+  [["gProjects", "projects"], ["gAreas", "areas"], ["gPages", "pages"], ["gOrphans", "orphans"], ["gDone", "done"], ["gLabels", "labels"]].forEach(([id, k]) => $(id).addEventListener("change", e => {
     gOpts[k] = e.target.checked;
     try { localStorage.setItem("chevy.graph.opts", JSON.stringify(gOpts)); } catch (err) {}
     if (k === "labels") draw(); else { fitted = false; renderGraph(); }
@@ -1263,7 +1549,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
   function setEmpty(html) { const el = $("graphEmpty"); el.hidden = !html; if (html) el.innerHTML = html; }
 
   function renderGraph() {
-    $("graphLegend").innerHTML = STATUSES.map(s => `<span><i style="background:var(${s.color})"></i>${s.v} project</span>`).join("") + `<span><i class="sq" style="background:var(--page)"></i>Page</span>`;
+    $("graphLegend").innerHTML = STATUSES.map(s => `<span><i style="background:var(${s.color})"></i>${s.v} project</span>`).join("") + `<span><i class="tdot t-areas" style="width:10px;height:10px;margin:0"></i>Area</span><span><i class="sq" style="background:var(--page)"></i>Resource</span>`;
     if (!window.d3) { setEmpty("<div><strong>The graph couldn't load</strong>Check your connection and reopen this page.</div>"); return; }
     const prev = new Map(gNodes.map(n => [n.id, n]));
     let items = [...byId.values()].filter(({ type, e }) => gOpts[type] && (gOpts.done || e.status !== "Done"));
@@ -1279,11 +1565,10 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { id: e.id, type, title: e.title || "Untitled", status: e.status || "", degree: deg.get(e.id) || 0 });
     });
     gLinks = links.map(l => ({ ...l }));
-    const nP = gNodes.filter(n => n.type === "projects").length, nG = gNodes.length - nP;
-    $("graphCount").textContent = `${nP} project${nP === 1 ? "" : "s"} · ${nG} page${nG === 1 ? "" : "s"} · ${gLinks.length} link${gLinks.length === 1 ? "" : "s"}`;
-    if (!byId.size) setEmpty("<div><strong>Nothing here yet</strong>Add projects or pages, then link them.</div>");
-    else if (!gNodes.length) setEmpty("<div><strong>Nothing to show</strong>Change what's shown under Display, or link some projects and pages.</div>");
-    else if (!gLinks.length) setEmpty("<div style='align-self:end'>Open a project or page and use Links to draw your first connection.</div>");
+    $("graphCount").textContent = TYPES.map(T => { const n = gNodes.filter(x => x.type === T.key).length; return `${n} ${n === 1 ? T.singular : T.label.toLowerCase()}`; }).join(" · ") + ` · ${gLinks.length} link${gLinks.length === 1 ? "" : "s"}`;
+    if (!byId.size) setEmpty("<div><strong>Nothing here yet</strong>Add projects, areas or resources, then link them.</div>");
+    else if (!gNodes.length) setEmpty("<div><strong>Nothing to show</strong>Change what's shown under Display, or link some projects, areas and resources.</div>");
+    else if (!gLinks.length) setEmpty("<div style='align-self:end'>Open a project, area or resource and use Links to draw your first connection.</div>");
     else setEmpty("");
     if (!graphVisible) return;
     if (!sim) {
@@ -1327,9 +1612,10 @@ select.pill:disabled { cursor: default; opacity: 1; }
       ctx.globalAlpha = hi && !hi.has(n.id) ? 0.2 : 1;
       const r = radius(n);
       ctx.beginPath();
-      if (n.type === "pages") { const s = r * 0.9; if (ctx.roundRect) ctx.roundRect(n.x - s, n.y - s, s * 2, s * 2, s * 0.35); else ctx.rect(n.x - s, n.y - s, s * 2, s * 2); }
+      if (n.type === "areas") { const d = r * 1.2; ctx.moveTo(n.x, n.y - d); ctx.lineTo(n.x + d, n.y); ctx.lineTo(n.x, n.y + d); ctx.lineTo(n.x - d, n.y); ctx.closePath(); }
+      else if (n.type === "pages") { const s = r * 0.9; if (ctx.roundRect) ctx.roundRect(n.x - s, n.y - s, s * 2, s * 2, s * 0.35); else ctx.rect(n.x - s, n.y - s, s * 2, s * 2); }
       else ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = cssVar(n.type === "pages" ? "--page" : statusOf(n.status).color); ctx.fill();
+      ctx.fillStyle = cssVar(n.type === "pages" ? "--page" : n.type === "areas" ? "--area" : statusOf(n.status).color); ctx.fill();
       if (n.id === hoverId) { ctx.lineWidth = 2.5 / transform.k; ctx.strokeStyle = ink; ctx.stroke(); }
     });
     const showAll = gOpts.labels && transform.k > 0.5;
@@ -1421,7 +1707,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
 
   // ---------- Data: Maggie's published entries + this visitor's sandbox ----------
   const published = new Set();
-  let sandbox = { projects: [], pages: [] };
+  let sandbox = Object.fromEntries(TYPES.map(T => [T.key, []]));
   function persistSandbox() {
     TYPES.forEach(T => { sandbox[T.key] = data[T.key].filter(e => !published.has(e.id)); });
     try { localStorage.setItem("chevy.sandbox", JSON.stringify(sandbox)); }
@@ -1449,7 +1735,8 @@ select.pill:disabled { cursor: default; opacity: 1; }
     T.props.forEach(P => {
       if (P.kind === "title") return;
       let v = "";
-      if (P.kind === "date") v = e[P.field] ? fmt(e[P.field]) + (P.withTime && fmtTime(e[P.field]) ? ", " + fmtTime(e[P.field]) : "") : "";
+      if (P.kind === "text") v = e[P.field] || "";
+      else if (P.kind === "date") v = e[P.field] ? fmt(e[P.field]) + (P.withTime && fmtTime(e[P.field]) ? ", " + fmtTime(e[P.field]) : "") : "";
       else if (P.kind === "status") v = e.status || "Not started";
       else if (P.kind === "daterange") v = fmtRange(e[P.start], e[P.end]);
       else if (P.kind === "links") v = linksOf(e.id).map(x => x.e.title + (x.e._pub ? "" : " (theirs)")).join(", ");

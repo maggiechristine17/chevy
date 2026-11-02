@@ -37,8 +37,8 @@ r('''<span class="dlg-kind" id="dlgTitle">New project</span>''',
       <span class="ro-note" id="roNote" hidden>Read-only · published by Maggie</span>''')
 
 # ---------- Table cells ----------
-r('''<span class="title-text">${esc(e.title || "Untitled")}</span></span>`;''',
-  '''<span class="title-text">${esc(e.title || "Untitled")}</span>${e._pub ? "" : '<span class="mine-tag">Yours</span>'}</span>`;''')
+r('''${e.subtitle ? `<span class="t-sub">${esc(e.subtitle)}</span>` : ""}</span></span>`;''',
+  '''${e.subtitle ? `<span class="t-sub">${esc(e.subtitle)}</span>` : ""}</span>${e._pub ? "" : '<span class="mine-tag">Yours</span>'}</span>`;''')
 r('''cell: (e, P, T) => `<select class="pill ${statusOf(e.status).cls}" data-status-for="${esc(e.id)}" aria-label''',
   '''cell: (e, P, T) => `<select class="pill ${statusOf(e.status).cls}" data-status-for="${esc(e.id)}"${e._pub ? " disabled" : ""} aria-label''')
 
@@ -78,7 +78,7 @@ start = s.index('  // ---------- Connect to saved data ----------')
 end = s.index('\n  showView();\n')
 s = s[:start] + '''  // ---------- Data: Maggie's published entries + this visitor's sandbox ----------
   const published = new Set();
-  let sandbox = { projects: [], pages: [] };
+  let sandbox = Object.fromEntries(TYPES.map(T => [T.key, []]));
   function persistSandbox() {
     TYPES.forEach(T => { sandbox[T.key] = data[T.key].filter(e => !published.has(e.id)); });
     try { localStorage.setItem("chevy.sandbox", JSON.stringify(sandbox)); }
@@ -122,9 +122,7 @@ def r2(a, b):
 
 s = s.replace('</style>', '''
 .site-banner .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.btn.small-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-:root[data-theme="dark"] .btn.small-primary { color: #0f1424; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.small-primary { color: #0f1424; } }
+.btn.small-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
 .send-list { display: grid; gap: 4px; max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 .dialog .send-list input { width: auto; flex: none; padding: 0; }
 .send-list label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 2px 0; }
@@ -161,8 +159,8 @@ r2('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></sc
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>''')
 
 # show a "Sent" tag on entries already sent
-r2('''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}''',
-   '''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}${!e._pub && e.sentAt ? '<span class="sent-tag">Sent</span>' : ""}''')
+r2('''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}</span>`;''',
+   '''${e._pub ? "" : '<span class="mine-tag">Yours</span>'}${!e._pub && e.sentAt ? '<span class="sent-tag">Sent</span>' : ""}</span>`;''')
 
 # show the send button whenever there are sandbox entries
 s = s.replace('''$("clearSandbox").hidden = !TYPES.some(T => sandbox[T.key].length);''',
@@ -177,7 +175,8 @@ r2('''  TYPES.forEach(T => { data[T.key] = [...sandbox[T.key]]; });''', r'''  TY
     T.props.forEach(P => {
       if (P.kind === "title") return;
       let v = "";
-      if (P.kind === "date") v = e[P.field] ? fmt(e[P.field]) + (P.withTime && fmtTime(e[P.field]) ? ", " + fmtTime(e[P.field]) : "") : "";
+      if (P.kind === "text") v = e[P.field] || "";
+      else if (P.kind === "date") v = e[P.field] ? fmt(e[P.field]) + (P.withTime && fmtTime(e[P.field]) ? ", " + fmtTime(e[P.field]) : "") : "";
       else if (P.kind === "status") v = e.status || "Not started";
       else if (P.kind === "daterange") v = fmtRange(e[P.start], e[P.end]);
       else if (P.kind === "links") v = linksOf(e.id).map(x => x.e.title + (x.e._pub ? "" : " (theirs)")).join(", ");
