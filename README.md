@@ -17,5 +17,5 @@ This repository holds the public website version, published by Netlify whenever 
 ## Updating the site
 
 1. Rebuild `index.html` if the Claude version's design or features changed.
-2. Refresh `content.json` from the Claude version's saved projects, areas and resources (`pages`) with `tools/make_content.py`. Only entries with **Show on website** turned on are published.
+2. Refresh `content.json` from the Claude version's saved projects, areas and resources (`pages`) with `tools/make_content.py`. Entries are published unless **Show on website** is switched off (it is on by default).
 3. Commit and push to `main`.

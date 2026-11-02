@@ -585,6 +585,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { key: "tasks", kind: "tasks", label: "Tasks", field: "tasks", width: 150 },
         { key: "links", kind: "links", label: "Links", width: 240 },
         { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
+        { key: "public", kind: "check", label: "Show on website", field: "public", width: 150, defaultOn: true },
       ],
       groups: [
         { key: "none", label: "None" },
@@ -603,6 +604,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
         { key: "links", kind: "links", label: "Links", width: 300 },
         { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
+        { key: "public", kind: "check", label: "Show on website", field: "public", width: 150, defaultOn: true },
       ],
       groups: [
         { key: "none", label: "None" },
@@ -620,6 +622,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
         { key: "createdTime", kind: "date", label: "Created time", field: "createdTime", withTime: true, width: 200 },
         { key: "links", kind: "links", label: "Links", width: 300 },
         { key: "cover", kind: "image", label: "Cover", field: "cover", width: 110, hidden: true },
+        { key: "public", kind: "check", label: "Show on website", field: "public", width: 150, defaultOn: true },
       ],
       groups: [
         { key: "none", label: "None" },
@@ -821,15 +824,16 @@ select.pill:disabled { cursor: default; opacity: 1; }
       read: (P, out) => { out[P.field] = draft.cover || ""; },
     },
     check: {
+      on: (e, P) => P.defaultOn ? !!e && e[P.field] !== false : !!(e && e[P.field]),
       empty: () => ({ mode: "any" }),
       active: f => f.mode !== "any",
-      test: (e, P, f) => f.mode === "any" || (f.mode === "yes" ? !!e[P.field] : !e[P.field]),
-      sortVal: (e, P) => e[P.field] ? 0 : "",
+      test: (e, P, f) => f.mode === "any" || (f.mode === "yes" ? K.check.on(e, P) : !K.check.on(e, P)),
+      sortVal: (e, P) => K.check.on(e, P) ? 0 : "",
       search: () => "",
       filterHtml: (P) => `<span class="flabel">${P.label}</span><div class="chips" data-dyn></div>`,
       sync: (box, f) => { box.querySelector("[data-dyn]").innerHTML = [["yes", "Shown"], ["no", "Not shown"]].map(([k, l]) => `<button type="button" class="chip" aria-pressed="${f.mode === k}" data-act="lmode" data-val="${k}">${l}</button>`).join(""); },
-      cell: (e, P) => e[P.field] ? '<span class="pub-on">● On website</span>' : '<span style="color:var(--muted)">Not shown</span>',
-      editHtml: (P, e) => `<div class="pub-edit"><label class="pub-toggle" for="ed-${P.key}"><input type="checkbox" id="ed-${P.key}"${e && e[P.field] ? " checked" : ""}><span class="pub-switch" aria-hidden="true"></span><span>${P.label}</span></label><span class="pub-hint">Only entries with this on are included when you publish to the website.</span></div>`,
+      cell: (e, P) => K.check.on(e, P) ? '<span class="pub-on">● On website</span>' : '<span style="color:var(--muted)">Not shown</span>',
+      editHtml: (P, e) => `<div class="pub-edit"><label class="pub-toggle" for="ed-${P.key}"><input type="checkbox" id="ed-${P.key}"${(e ? K.check.on(e, P) : !!P.defaultOn) ? " checked" : ""}><span class="pub-switch" aria-hidden="true"></span><span>${P.label}</span></label><span class="pub-hint">On by default. Switch it off to keep this entry off the website.</span></div>`,
       read: (P, out) => { out[P.field] = $("ed-" + P.key).checked; },
     },
     tags: {
@@ -1113,7 +1117,7 @@ select.pill:disabled { cursor: default; opacity: 1; }
       return [...list.filter(isPinned), ...list.filter(e => !isPinned(e))];
     }
     const rowHtml = (e) => `<tr class="row${hasStatus(T) && e.status === "Done" ? " done" : ""}" data-id="${esc(e.id)}" tabindex="0">${shown().map(c => { const P = PROP[c.key]; return `<td data-label="${esc(P.label)}">${K[P.kind].cell(e, P, T)}</td>`; }).join("")}</tr>`;
-    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : P.kind === "tasks" ? taskList(e).length > 0 : P.kind === "tags" ? tagsOf(e).length > 0 : P.kind === "check" ? !!e[P.field] : false;
+    const hasVal = (e, P) => P.kind === "status" ? true : P.kind === "date" ? !!e[P.field] : P.kind === "daterange" ? !!(e[P.start] || e[P.end]) : P.kind === "links" ? !!(adj.get(e.id) || new Set()).size : P.kind === "tasks" ? taskList(e).length > 0 : P.kind === "tags" ? tagsOf(e).length > 0 : P.kind === "check" ? K.check.on(e, P) : false;
     const cardCell = (e, P) => P.kind === "status" ? `<span class="pill ${statusOf(e.status).cls}">${esc(e.status || "Not started")}</span>` : K[P.kind].cell(e, P, T);
     const cardHtml = (e) => {
       const done = hasStatus(T) && e.status === "Done", vis = shown().map(c => c.key);
